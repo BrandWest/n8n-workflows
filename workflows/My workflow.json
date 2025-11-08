@@ -1,0 +1,148 @@
+{
+  "active": false,
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Get a workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-08T01:37:59.246Z",
+  "id": "8x0rdGEJXHIKBdRA",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 60
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -528,
+        -32
+      ],
+      "id": "90c7bad6-321b-4f79-824c-22d5ce1b8c52",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        192,
+        0
+      ],
+      "id": "9d8f792e-b7c5-4f2f-ba58-c8eed0ba42b5",
+      "name": "Crypto"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "get",
+        "owner": {
+          "__rl": true,
+          "value": "https://github.com/BrandWest/n8n-workflows.git",
+          "mode": "url"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "n8n-workflows",
+          "mode": "list",
+          "cachedResultName": "n8n-workflows",
+          "cachedResultUrl": "https://github.com/BrandWest/n8n-workflows"
+        },
+        "filePath": "README.md",
+        "asBinaryProperty": false,
+        "additionalParameters": {}
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -320,
+        -32
+      ],
+      "id": "ed57178e-90a6-4006-ad4e-ab883eba4a39",
+      "name": "Get a file",
+      "webhookId": "a35b0c46-eeef-48a6-91e1-0e5d86471520",
+      "credentials": {
+        "githubApi": {
+          "id": "MLUZAcF2RshMp4aG",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "requestOptions": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -96
+      ],
+      "id": "8ffd9f0f-ea53-4fd2-8441-40c105e3041f",
+      "name": "Get a workflow",
+      "credentials": {
+        "n8nApi": {
+          "id": "a6Z3fUT9EnInbuQJ",
+          "name": "n8n account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-11-08T01:37:59.246Z",
+      "createdAt": "2025-11-08T01:37:59.246Z",
+      "role": "workflow:owner",
+      "workflowId": "8x0rdGEJXHIKBdRA",
+      "projectId": "9tVnjhoqECLAKTN1"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-08T02:10:30.881Z",
+  "versionId": "dc37cfb8-26b2-4cd0-85f6-914e5c2b928f"
+}
