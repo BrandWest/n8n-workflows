@@ -1,0 +1,122 @@
+{
+  "active": false,
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "OpenWeatherMap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenWeatherMap": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-28T18:18:54.593Z",
+  "id": "EfpQxc1tQujSCeO6",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "WeatherToday",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -624,
+        -320
+      ],
+      "id": "208f735b-8b45-4d53-a15f-87d299d65f51",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "locationSelection": "cityId",
+        "cityId": 6066513
+      },
+      "type": "n8n-nodes-base.openWeatherMap",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -320
+      ],
+      "id": "e0376207-0990-4ef1-985e-7280acfc0e73",
+      "name": "OpenWeatherMap",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "FEz5dn6nRzbb6GVd",
+          "name": "OpenWeatherMap account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "brandon@brandonwest.tech",
+        "subject": "=Your Weather Today",
+        "message": "=Good morning! The current Temerature is {{ $json.main.temp }}°C in {{ $json.name }}, {{ $json.sys.country }}.\n\nWeather info:\n> Feels like: {{ $json.main.feels_like }}°C\n> A low of: {{ $json.main.temp_min }}°C\n> A high of: {{ $json.main.temp_max }}°C\n> Wind Speed: {{ $json.wind.speed }} KM/H",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -176,
+        -320
+      ],
+      "id": "856bd51a-f14c-4d4f-a65b-be8397d28e4f",
+      "name": "Send a message",
+      "webhookId": "3d28ce08-d839-41a9-969d-882fceccb2c2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HAqDfkIe5gd42otF",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-10-28T18:18:54.593Z",
+      "createdAt": "2025-10-28T18:18:54.593Z",
+      "role": "workflow:owner",
+      "workflowId": "EfpQxc1tQujSCeO6",
+      "projectId": "9tVnjhoqECLAKTN1"
+    }
+  ],
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    }
+  },
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2025-11-06T03:12:47.241Z",
+  "versionId": "eb162148-ca3b-42a6-83a6-7afcc751c400"
+}
