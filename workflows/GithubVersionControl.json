@@ -169,11 +169,6 @@
       "main": [
         [
           {
-            "node": "Completed Notification",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "DiscordCompleted",
             "type": "main",
             "index": 0
@@ -575,29 +570,6 @@
     },
     {
       "parameters": {
-        "select": "channel",
-        "channelId": {
-          "__rl": true,
-          "mode": "name",
-          "value": "#notifications"
-        },
-        "text": "=✅ Backup has completed - {{ $('Get Workflows').all().length }} workflows have been processed.",
-        "otherOptions": {}
-      },
-      "id": "33fcf1ac-23a6-4543-ac50-890a8ff8bb2e",
-      "name": "Completed Notification",
-      "type": "n8n-nodes-base.slack",
-      "position": [
-        304,
-        48
-      ],
-      "webhookId": "a0c6e8c8-5d71-40fa-b02b-63a7ed5726c4",
-      "executeOnce": true,
-      "typeVersion": 2.2,
-      "disabled": true
-    },
-    {
-      "parameters": {
         "rule": {
           "interval": [
             {}
@@ -665,7 +637,7 @@
     {
       "parameters": {
         "authentication": "webhook",
-        "content": "=Information_source:  Starting Workflow Backup [{{ $execution.id }}]",
+        "content": "=🔔 Execution Start: Starting **{{ $workflow.name }}** [{{ $execution.id }}]\n---",
         "options": {}
       },
       "type": "n8n-nodes-base.discord",
@@ -687,14 +659,14 @@
     {
       "parameters": {
         "authentication": "webhook",
-        "content": "=✅ Backup has completed - {{ $('Get Workflows').all().length }} workflows have been processed.",
+        "content": "=✅ Backup has completed - {{ $('Loop Over Items1').all().length }} workflows have been processed.",
         "options": {}
       },
       "type": "n8n-nodes-base.discord",
       "typeVersion": 2,
       "position": [
         304,
-        -80
+        64
       ],
       "id": "5528ff7a-ac69-45b9-b7c8-4f7acd4dd602",
       "name": "DiscordCompleted",
@@ -730,6 +702,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2025-11-08T02:51:28.683Z",
-  "versionId": "6d4d91b1-2b33-476c-8556-71ef7333854d"
+  "updatedAt": "2025-11-08T02:57:37.029Z",
+  "versionId": "847b0c1d-1066-4d0f-8844-e9e22d7c4f1f"
 }
