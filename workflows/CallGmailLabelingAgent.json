@@ -1,0 +1,379 @@
+{
+  "active": false,
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail - add label to message": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gmail labelling agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail - create label": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gmail labelling agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove label from message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gmail labelling agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Gmail labelling agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Gmail labelling agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many labels in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Gmail labelling agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Gmail labelling agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail labelling agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-27T22:41:39.862Z",
+  "id": "uOtCgatTrih0M43X",
+  "isArchived": false,
+  "meta": null,
+  "name": "CallGmailLabelingAgent",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "message_json",
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -496,
+        -368
+      ],
+      "id": "f1c15bd5-2d8d-4566-9158-f10ac56e7a24",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $fromAI('gmail_message_id') }}",
+        "labelIds": "={{ JSON.parse($fromAI('gmail_label_ids')) }}"
+      },
+      "id": "59463c6b-ffae-4286-80e2-215aaff1afda",
+      "name": "Gmail - add label to message",
+      "type": "n8n-nodes-base.gmailTool",
+      "position": [
+        368,
+        272
+      ],
+      "webhookId": "7a87b026-1c6e-40e1-a062-aefdd1af1585",
+      "typeVersion": 2.1,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HAqDfkIe5gd42otF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Creates a new Gmail label. ONLY use this if you've confirmed the label doesn't exist in the available labels list. Returns the new label's ID which you must use when adding labels.",
+        "resource": "label",
+        "operation": "create",
+        "name": "={{ $fromAI('new_label_name', 'new label name to create', 'string') }}",
+        "options": {}
+      },
+      "id": "cdc7d7c3-bb48-4235-98a5-9f451483ebcf",
+      "name": "Gmail - create label",
+      "type": "n8n-nodes-base.gmailTool",
+      "position": [
+        48,
+        272
+      ],
+      "webhookId": "d8ec9401-a9ff-4fe2-9c1e-5a8036cd96c9",
+      "typeVersion": 2.1,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HAqDfkIe5gd42otF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "removeLabels",
+        "messageId": "={{ $fromAI('gmail_message_id') }}",
+        "labelIds": "={{ typeof $fromAI('gmail_label_ids_to_remove') === 'string' ? $fromAI('gmail_label_ids_to_remove').split(',').map(id => id.trim()) : $fromAI('gmail_label_ids_to_remove') }}"
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        272
+      ],
+      "id": "9aea89b3-c859-4e6b-bc4d-cb64f561525f",
+      "name": "Remove label from message in Gmail",
+      "webhookId": "f198ad46-f3be-434e-a3be-43e5ed5428db",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HAqDfkIe5gd42otF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-haiku-4-5-20251001",
+          "mode": "list",
+          "cachedResultName": "Claude Haiku 4.5"
+        },
+        "options": {
+          "maxTokensToSample": 4096
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -448,
+        256
+      ],
+      "id": "be11eff7-80a1-4a08-8125-3013a95a355c",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "h3UKNgipU70mkmgK",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "=customKey",
+        "sessionKey": "gmail-labeling-session"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -288,
+        256
+      ],
+      "id": "46e1999a-d2e4-4127-935b-7a6e965cb847",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are reviewing a Gmail message.\n\nEMAIL DETAILS:\n- Message ID: {{ $json.id }}\n- Subject: {{ $json.subject }}\n- From: {{ $json.from }}\n- Body: {{ $json.body }}\n\nUse the Gmail tools to:\n1. Create any new labels needed (if not in the get_labels() response)\n2. Add appropriate labels to this message (must include \"tagged\")\n3. Remove any unwanted system category labels\n4. Get all Labels - filter to only return \"user\" created labels\n\nREQUIRED WORKFLOW & RULES:\n\nStep 1: Get Reference List. Call the get_labels() tool exactly one time to get the current list of all available labels.\n\nStep 2: Analyze Email. Read the email's subject, sender, and body to determine its primary topic (e.g., \"Finance,\" \"Work Project,\"\n  \"Spam,\" \"Personal\").\n\nStep 3: Choose 1-3 Labels. Review the entire list of labels you received from Step 1.\n* DO NOT LOOP THROUGH THE LABELS.\n* Based on the email's topic, make a single decision:\n   * Identify the 1-3 best-fitting existing \"user\" labels.\n   * OR, if no suitable label exists, decide on a name for a single new label.\n   * For spam/junk/promotional emails, use \"AI/Trash\"\n\nStep 4: Execute Actions.\n* If you decided to create a new label, call create_label tool once.\n* Call add_labels tool once to apply the correct label ID(s) and the \"tagged\" label ID. Ensure the list of label_ids to be sent to the add label tool is a list of strings.\n* Track the label names you have used to use int he response.\n\nBe decisive and efficient - make the necessary tool calls to complete the labeling.\n\nRETURNING VALUES:\nYour response must be a single, valid JSON object. Do not include any markdown, explanations, or any other text outside of the JSON object. The JSON object should have the following structure:\n{\n  \"new_label\": <boolean>,\n  \"summaryOfSteps\": \"<string>\",\n  \"labels_added\": [\"<label_name1>\", \"<label_name2>\"\", ...],\n}\n\n",
+        "options": {}
+      },
+      "id": "2266284c-1c22-4344-98b2-dc1ee2a80d66",
+      "name": "Gmail labelling agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        96,
+        -368
+      ],
+      "notesInFlow": false,
+      "retryOnFail": false,
+      "typeVersion": 1.7,
+      "alwaysOutputData": false,
+      "notes": "CONFIGURATION & IMPLEMENTATION NOTES\n\n**Input Data Requirements:**\n- Agent must receive email items directly from \"Get All: Messages\" node\n- Each email contains: id, Subject, From, snippet, labelIds, payload\n- Labels database available via: $('Aggregate Labels').first().json.labels\n- Format: {\"Label_Name\": \"Label_ID_String\"}\n\n**Tool Call Parameters:**\n\nCREATE_LABEL:\n{\n  \"label_name\": \"Healthcare\"\n}\nReturns: { \"id\": \"Label_XXXXX\", \"name\": \"Healthcare\", \"type\": \"user\" }\n\nADD_LABELS (ALWAYS include both category + tagged):\n{\n  \"message_id\": \"{{ $json.id }}\",\n  \"label_ids\": [\"Label_1207891366934541852\", \"Label_5163430024666410500\"]\n}\n\nREMOVE_LABELS (only unwanted system labels):\n{\n  \"message_id\": \"{{ $json.id }}\",\n  \"label_ids\": [\"CATEGORY_PROMOTIONS\", \"CATEGORY_SOCIAL\"]\n}\n\n**Label ID Reference:**\n- Tagged label ID: Label_5163430024666410500\n- Always include this in add_labels calls\n- Find other IDs in KNOWN LABELS object\n\n**Expected Tool Call Patterns:**\n\nPattern A (Label exists):\n1. add_labels → [existing_category_id, tagged_id]\n2. remove_labels → [unwanted_system_labels] (if any)\n\nPattern B (New label needed):\n1. create_label → returns new_label_id\n2. add_labels → [new_label_id, tagged_id]\n3. remove_labels → [unwanted_system_labels] (if any)\n\n**Categorization Guidelines:**\n\nPAYMENT/BILLING indicators:\n- Keywords: bill, invoice, payment, due, receipt, charge, statement\n- Sender domains: billing@, noreply@, accounts@\n- Common senders: utility companies, telecom, subscriptions\n\nNEWSLETTER indicators:\n- Keywords: newsletter, digest, weekly, monthly, update\n- Unsubscribe links in content\n- Regular scheduled emails from same sender\n\nCRYPTO/FINANCE indicators:\n- Keywords: bitcoin, crypto, exchange, wallet, transaction, trading\n- Domains: coinbase, uphold, shakepay, newton, kraken, binance\n- Banking institutions\n\nJOBS/RECRUITMENT indicators:\n- Keywords: job, position, interview, application, career, hiring\n- Domains: linkedin, indeed, glassdoor, company HR emails\n\nHEALTHCARE indicators:\n- Keywords: appointment, prescription, doctor, clinic, health, medical\n- Pharmacy and healthcare provider domains\n\n**System Label Removal Rules:**\n✅ REMOVE these if present:\n- CATEGORY_PROMOTIONS (marketing emails)\n- CATEGORY_SOCIAL (social media notifications)\n- CATEGORY_UPDATES (newsletters/updates)\n- CATEGORY_FORUMS (forum notifications)\n\n❌ DO NOT REMOVE:\n- INBOX (user needs to see it)\n- UNREAD (functional state)\n- IMPORTANT (user-marked or Gmail-detected important)\n- STARRED (user favorited)\n- SENT, DRAFT, TRASH (functional categories)\n\n**Error Handling:**\n- If create_label fails: Use closest existing label, log error\n- If add_labels fails: Retry once, then log error and continue\n- If remove_labels fails: Non-critical, log and continue\n- If no suitable category found: Create \"Uncategorized\" label as fallback\n\n**Performance Expectations:**\n- Average 2-3 tool calls per email\n- 95%+ should use existing labels (minimal new label creation)\n- Processing time: 2-5 seconds per email\n- Label consistency: Similar emails should get same labels\n\n**Quality Checks:**\n- Verify label_id format before tool calls: /^Label_\\d+$/\n- Validate message_id is present and non-empty\n- Ensure at least 2 label_ids in add_labels (category + tagged)\n- Check KNOWN LABELS before creating duplicates\n\n**Common Edge Cases:**\n- Emails with multiple categories: Choose primary category only\n- Nested label names (e.g., \"Payment/Bell\"): Use full nested name\n- Unclear category: Default to broader category (e.g., \"Notification\")\n- No snippet available: Categorize based on Subject and From only\n\n**Debugging Tips:**\n- Log the category decision reasoning\n- Log which label was matched or created\n- Log all tool call parameters before execution\n- Track success/failure rates per email batch\n\n**Integration Points:**\n- Gmail API rate limits: 250 quota units per user per second\n- Label limit: 2000 labels per Gmail account\n- Consider label cleanup for labels with 0 messages periodically"
+    },
+    {
+      "parameters": {
+        "resource": "label",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        528,
+        272
+      ],
+      "id": "a0c611bd-8373-4ede-8001-3b68beddb38c",
+      "name": "Get many labels in Gmail",
+      "webhookId": "862cf53a-8ddc-448b-9a83-190e0e28095e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HAqDfkIe5gd42otF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "14b8626d-3575-4d5d-8544-d539279d0472",
+              "name": "id",
+              "value": "={{ $json.message_json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "ab311efa-e57d-4849-a5f8-1b4e3292c12d",
+              "name": "body",
+              "value": "={{ $json.message_json.body }}",
+              "type": "string"
+            },
+            {
+              "id": "b519284f-9336-4fd9-b4a7-859bf2844bca",
+              "name": "subject",
+              "value": "={{ $json.message_json.Subject }}",
+              "type": "string"
+            },
+            {
+              "id": "96734c6c-bde1-40fd-9041-d55ae43be483",
+              "name": "from",
+              "value": "={{ $json.message_json.From }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -192,
+        -368
+      ],
+      "id": "ca23473c-9067-44c7-83d6-8357013f0584",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = items[0].json;\n\nconst outputString = item.output;\nconst startIndex = outputString.indexOf('{');\nconst endIndex = outputString.lastIndexOf('}');\n\nlet jsonData = { error: \"Could not find JSON in the input string\" };\n\n  if (startIndex !== -1 && endIndex !== -1) {\n    // Extract the JSON string\n    const jsonString = outputString.substring(startIndex, endIndex + 1);\n\n    try {\n      // Parse the string into a real JSON object\n      jsonData = JSON.parse(jsonString);\n    } catch (error) {\n      jsonData = { error: \"Failed to parse JSON\", details: error.message };\n    }\n  }\n\n  // Return the extracted JSON object for the next node in the workflow.\n  // n8n expects an array of items to be returned.\n  return [\n    {\n      json: jsonData\n    }\n  ];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        -368
+      ],
+      "id": "76bf500d-1a0f-46e5-941e-c8af66ba3cd9",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "message_json": {
+            "id": "19a318866d3acbf5",
+            "body": "Claude [https://claude.ai/images/claude_logo_full.png]\n\nThanks for starting your Pro subscription, Ellie\n\nYour payment method has been charged. The next charge will be on Oct 29, 2026.\n\nYou can modify your payment method or cancel your subscription anytime by\nvisiting the Claude billing settings\n[https://url8792.mail.anthropic.com/ls/click?upn=u001.rFcAmKXLOm9u6wLRWHIUYVRSH8-2BTWeyIeuAQkoEbUtjWgPPTI-2Fi15nGYZcd6rxMpMgfM_-2F71-2BLWbzSi0dck0OVvkyA0KCmlrtA3D-2FZjuTsaMHJ81AqDVwI-2BymdRn6lWbY7UnYCKmey5I-2BBFq-2FfHfb0KtG640PttnwSmNBVvD2XRhnkaGKr0F8Y5s0XwtRyeBWtyFyzAkgUdB7CS1S8lnnKEtjj8DTd8vbBnxd3pX5cRd8f-2Ft5FtwL1gDbW-2BaKRpFXQ7McSwIAIhXZ8WtMJQMWEeJ38gSxSTbm8b8x-2FKJUq6LA-2F6XfB0IwU7wf5kJ8-2Fctcp715kAnDJjvrbtnUkX8gT3BRVhqU7MElTxRPBKw1rtPX5-2BDlqzexYgTAMg-2BnbA0WsmTG]\npage.\n\nChat with Claude\n[https://url8792.mail.anthropic.com/ls/click?upn=u001.rFcAmKXLOm9u6wLRWHIUYUUA-2BSVUXqYUh1-2F5t4CljUM-3DixuS_-2F71-2BLWbzSi0dck0OVvkyA0KCmlrtA3D-2FZjuTsaMHJ81AqDVwI-2BymdRn6lWbY7UnYykbCZxwx8XZq8CKLZKm4sx61kgT3p6swI8-2Bu-2BUffoSViZIQmJyBA9sCaVDGfcDd68kioSAVGUcrydAX0tEKDjBfU8qRPYyS4xGK4JdbTt5J0chsmd-2BqKi5x1HYdmJKiRvox7guCI4F6aiRp5Gsu7J31fwWovbAeIs5ji2uxkhZU7upPzAA8sXcl8var-2BbF2ZiR6T-2BQB48-2B9HSL1wWurbH6f6KkOE70jIGCn6N9USsbfaY1CLWWfOdYIw8dKFcDN9]\n\nFor any further questions, please visit our help center\n[https://url8792.mail.anthropic.com/ls/click?upn=u001.rFcAmKXLOm9u6wLRWHIUYc0QkMTx61-2B0VNcZthi30myKv6o51Mmuf6-2Fasw4G-2FEWn3f6n_-2F71-2BLWbzSi0dck0OVvkyA0KCmlrtA3D-2FZjuTsaMHJ81AqDVwI-2BymdRn6lWbY7UnYHPA8Wb0lYPNkJlaC-2FBYAD8GmuIh3Z14wIYnWvouy7kFAgJKJ09hL-2FueGzWUe-2Fo1F9nyDcSq3kb19PMvHPtVZ3l0Ujx-2BNBEb48ZSRCiLreXq-2FT-2FuN76EokaDxXwYYXZPb8nye5C-2FZW-2BZJKfEv4uNH3BtUUf1dJkZz0p-2Bqi5Da8-2FuloM7RzLngvWy3xn5w1elBO4MA5wT3G12eQOYePt-2BzQh-2BgfJT7fGIHvPP16DdkLyoL1ynDuFGpKIKbDlW4HbOS].\n\nAnthropic [https://claude.ai/images/ant_logo_full_faded.png]\n\nClaude.ai\n[https://url8792.mail.anthropic.com/ls/click?upn=u001.rFcAmKXLOm9u6wLRWHIUYR2OTiBaouKIQ6GV-2FPwmu34-3DPYFE_-2F71-2BLWbzSi0dck0OVvkyA0KCmlrtA3D-2FZjuTsaMHJ81AqDVwI-2BymdRn6lWbY7UnYqiyic5vXivGBriGKdY-2FQVHhzwZFAjQ4kKNUId6aWiZYfy4bT3EMFIpPf4BQ1H68o8WdsNbDr-2FSktQoRur8NBC1H28KPMEg1RCT4UzZlVwKGnweRwkFjsSY7bGy6kWT7G5bJOSMkUVTKrVn0jddHCYPLmxljLsoqT4PFFFefYBgAlITbdIqjf9On2us9LIMG5fXO6TzbL6I7LZUJ-2BRsWkt0-2FM0FT3EmpYQVgBHKwaTQpZy4dDsT9sabddnJoQy4Z-2B]\n· Research\n[https://url8792.mail.anthropic.com/ls/click?upn=u001.rFcAmKXLOm9u6wLRWHIUYSKRKJAmcPTW126jLsjaGDdpWUMe1rPQqsdTGhEZEUSP2nfK_-2F71-2BLWbzSi0dck0OVvkyA0KCmlrtA3D-2FZjuTsaMHJ81AqDVwI-2BymdRn6lWbY7UnYemJowuNx6IwUqKdc0-2BPo7GXuIL0ZNdA0e0WP-2FNNQZfB9c4ovjNthkK5xIPEVReRM1itHAb2oA0suTLI2OuurS3AP-2B19Ozpdiz3Iz48O7WZyTOrAvf-2FiOvzXOyEGxgYH3PrhaqsjwLy99NcgHzOdhP57NOt3Wok4MQekJTxz0gyBcrzMOQI-2FqEvbP1shZJBlRW0vSHxQ40HYDAwvo0fbjGyw3xRwqYV3EQhizVlSbbUJPo6pVy45-2B9JofqAKibyAa]\n· Products\n[https://url8792.mail.anthropic.com/ls/click?upn=u001.rFcAmKXLOm9u6wLRWHIUYdjm06hTZNgr9QoLOKdEJWibHpXIMsfRA-2FkzEr0qCie3XldZ_-2F71-2BLWbzSi0dck0OVvkyA0KCmlrtA3D-2FZjuTsaMHJ81AqDVwI-2BymdRn6lWbY7UnY0FZAQpyi1Yy3WlpzODAvR0yhLGPLjhvOmmMCGUEdkWFGRChriZfJ-2Fcuq73R99sjUBDg9srh1-2BFNTbxgeKeF-2F5Upns-2BLp70g5I2ZnWIwyFLUA7TVDGG7hw4u64ogpJT5UGSbFMdBNZHXUeCiBYOpuliuY3-2Fi7E9Ixq-2FD5fus8NOb-2FJjUkl5h8issuNPetBWjKXCfaPiPvN-2Fvd1cqSUFopIsNrL-2FC38B3rdMqiutqEfovXNgzs4PRE9i0-2BvnHhyvwX]\n· Company\n[https://url8792.mail.anthropic.com/ls/click?upn=u001.rFcAmKXLOm9u6wLRWHIUYVkNF9ETxjhvx66ue5S9R9UnlB8E2k-2FYvarmPfGHl-2BuKjbqF_-2F71-2BLWbzSi0dck0OVvkyA0KCmlrtA3D-2FZjuTsaMHJ81AqDVwI-2BymdRn6lWbY7UnYIPnpmXvuaaZgAX8tHEBlWUjvQjWjoom8NGbRtEMqNeugqRwjqJTjedpOm4he2EeHqHNbN-2Bau66ZjaZXuh9Bz1nAqEp1Tk1qFPeVCnoxMlxJJFdDvhbGjywGxeM9Pc4DAXsbF9b9Nv-2Ff5k-2F504IlKpTdZ8jZFOmJM4QpmnUi3Nc7L3IdEY6HgY7oDuTHfqlXt5GVOFIl5TrhZDvaj0qH7kOGYiBZQO2G6VMDuqiVIpON8HvTqAEacwbTHTBGxLhGM]\n\n\n\n[https://url8792.mail.anthropic.com/wf/open?upn=u001.iL2npYFQGO7OGT8GhBDG2NFqzkSseYEKR0qeFhkwl-2FVnFZvJL-2FXeCqYyiVdLlVs3WdU6rBX-2FMq2m74ZMM-2BBcE2TQqQgAGecIEDHUlS6y9ld2hb8Wh3sEw589LwZbaZahDHQZhIDjjiuHrTKnQHEQ55tFZZlAxGtrJSbr-2BuJGwrhaJJpFzdCzIvNeegoTIZrjcykKvwGIyKwkqKlKaoleOpm3dfWiWxt-2B1LeMujATIcBRJuqaklx36D-2F-2Bij64UF2Jn-2Bw4aMEHQH1uXidheziukwdUdEVvJe6NUVDM8cqUdv1p6MtWQCkB0pFodTf-2BH-2Bjj]",
+            "From": "no-reply-Aq0TfP7Yw06kdr_gR8futQ@mail.anthropic.com",
+            "Subject": "Welcome to the Pro plan"
+          }
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-10-27T22:41:39.862Z",
+      "createdAt": "2025-10-27T22:41:39.862Z",
+      "role": "workflow:owner",
+      "workflowId": "uOtCgatTrih0M43X",
+      "projectId": "9tVnjhoqECLAKTN1"
+    }
+  ],
+  "staticData": null,
+  "tags": [
+    {
+      "updatedAt": "2025-11-06T03:14:45.725Z",
+      "createdAt": "2025-11-06T03:14:45.725Z",
+      "id": "zpYhVVR9vYsW5eiv",
+      "name": "agent"
+    },
+    {
+      "updatedAt": "2025-11-06T03:13:31.124Z",
+      "createdAt": "2025-11-06T03:13:31.124Z",
+      "id": "fkkeZV6oQpGSZbdv",
+      "name": "ai"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-06T03:14:49.934Z",
+  "versionId": "a015618f-990b-467c-aa8f-796ddd60df1e"
+}
