@@ -1,0 +1,657 @@
+{
+  "active": false,
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "PreviousFeedItems",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetRssFeeds": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Get many messages",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call 'call_rss_feeds'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'call_rss_feeds'": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PreviousFeedItems": {
+      "main": [
+        [
+          {
+            "node": "SetRssFeeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Filter1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-01T19:58:52.244Z",
+  "id": "KW8NXCW9wW3uldwV",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "RSSFeeds",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -96
+      ],
+      "id": "732c4c44-ed0b-42cd-897d-4c02944c1c76",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "12hmSllF4xme1Gje8tumW5lfi7S6DKhlmpK9MfsVaJK0",
+          "mode": "list",
+          "cachedResultName": "rss_feed_list",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12hmSllF4xme1Gje8tumW5lfi7S6DKhlmpK9MfsVaJK0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "feed",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12hmSllF4xme1Gje8tumW5lfi7S6DKhlmpK9MfsVaJK0/edit#gid=0"
+        },
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "detectAutomatically",
+              "readRowsUntil": "firstEmptyRow"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -416,
+        -96
+      ],
+      "id": "7cdb369b-2c59-493d-a78b-b01bef9ddec2",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "C80Yu9L7FK1DLAi4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{ \"feeds\" :  [\n  {\n    \"url\": \"https://grahamcluley.com/feed/\",\n    \"name\": \"Graham Cluley\"\n  },\n  {\n    \"url\": \"https://krebsonsecurity.com/feed/\",\n    \"name\": \"Krebs on Security\"\n  },\n  {\n    \"url\": \"https://www.schneier.com/feed/atom/\",\n    \"name\": \"Schneier on Security\"\n  },\n  {\n    \"url\": \"https://securelist.com/feed/\",\n    \"name\": \"Securelist\"\n  },\n  {\n    \"url\": \"https://news.sophos.com/en-us/category/security-operations/feed/\",\n    \"name\": \"Security Operations – Sophos News\"\n  },\n  {\n    \"url\": \"https://feeds.feedburner.com/TheHackersNews?format=xml\",\n    \"name\": \"The Hacker News\"\n  },\n  {\n    \"url\": \"https://news.sophos.com/en-us/category/threat-research/feed/\",\n    \"name\": \"Threat Research – Sophos News\"\n  },\n  {\n    \"url\": \"https://www.troyhunt.com/rss/\",\n    \"name\": \"Troy Hunt\"\n  },\n  {\n    \"url\": \"https://feeds.feedburner.com/eset/blog\",\n    \"name\": \"WeLiveSecurity\"\n  },\n  {\n    \"url\": \"https://0dayfans.com/feed.rss\",\n    \"name\": \"0dayfans\"\n  }\n]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -112,
+        -96
+      ],
+      "id": "3360045d-3846-4e35-aa4a-7917f0e30a81",
+      "name": "SetRssFeeds",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const feedsArray = $input.first().json.feeds;\n\nreturn feedsArray.map(feed => ({\n  json: feed\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        16,
+        -96
+      ],
+      "id": "0e2098d8-9da6-48e8-84eb-dc8e324c7f18",
+      "name": "Code in JavaScript",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        224,
+        -96
+      ],
+      "id": "7ba1cd6b-9753-4468-87ee-6d9ca5e61848",
+      "name": "Loop Over Items",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "8TfY9JrZw2v7vELw",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/8TfY9JrZw2v7vELw",
+          "cachedResultName": "call_rss_feeds"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $json.url }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        464,
+        -80
+      ],
+      "id": "cc79fd61-eb7e-43df-b53b-0f9a70c0d7f7",
+      "name": "Call 'call_rss_feeds'",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9418432f-8892-4bfe-b960-74552f34466b",
+              "leftValue": "={{ $('PreviousFeedItems').item.json.title }}",
+              "rightValue": "={{ $json.title }}",
+              "operator": {
+                "type": "array",
+                "operation": "notContains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        -80
+      ],
+      "id": "617e22d7-c765-4caa-9abf-053c16c40c29",
+      "name": "Filter",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "12hmSllF4xme1Gje8tumW5lfi7S6DKhlmpK9MfsVaJK0",
+          "mode": "list",
+          "cachedResultName": "rss_feed_list",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12hmSllF4xme1Gje8tumW5lfi7S6DKhlmpK9MfsVaJK0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "feed",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12hmSllF4xme1Gje8tumW5lfi7S6DKhlmpK9MfsVaJK0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "title": "={{ $json.title }}",
+            "link": "={{ $json.link }}",
+            "content": "={{ $json.content }}",
+            "contentSnippet": "={{ $json.contentSnippet }}",
+            "guid": "={{ $json.guid }}",
+            "creator": "={{ $json.creator }}",
+            "isoDate": "={{ $json.isoDate }}",
+            "content:encoded": "={{ $json[\"content:encoded\"] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "link",
+              "displayName": "link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "creator",
+              "displayName": "creator",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "isoDate",
+              "displayName": "isoDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "content:encoded",
+              "displayName": "content:encoded",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contentSnippet",
+              "displayName": "contentSnippet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "guid",
+              "displayName": "guid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        848,
+        -80
+      ],
+      "id": "5a0c230d-162c-4ec5-9c79-4ad764c2ee1b",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "C80Yu9L7FK1DLAi4",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "277f64e6-47ab-4578-b227-c2e331fdcc76",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -256,
+        -96
+      ],
+      "id": "36d670d4-515a-4e7d-9838-05ab1fb09087",
+      "name": "PreviousFeedItems"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "getAll",
+        "guildId": {
+          "__rl": true,
+          "value": "993159365924241408",
+          "mode": "list",
+          "cachedResultName": "PvtCaboose's test server",
+          "cachedResultUrl": "https://discord.com/channels/993159365924241408"
+        },
+        "channelId": {
+          "__rl": true,
+          "value": "1434167626883534869",
+          "mode": "list",
+          "cachedResultName": "rss",
+          "cachedResultUrl": "https://discord.com/channels/993159365924241408/1434167626883534869"
+        },
+        "returnAll": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        464,
+        -352
+      ],
+      "id": "b9c72e57-718a-4d99-967a-904d402b9ef7",
+      "name": "Get many messages",
+      "webhookId": "dadd9c13-45e4-488a-9bfa-efb2d81f3b75",
+      "executeOnce": true,
+      "credentials": {
+        "discordOAuth2Api": {
+          "id": "T6aDxtG3GOSh3bjy",
+          "name": "Discord account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "845a7d5f-4e6d-4299-998c-0b916d48b139",
+              "name": "embeds[0].title",
+              "value": "={{ $json.embeds[0].title }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        656,
+        -352
+      ],
+      "id": "e8b58b97-df3a-42a4-add2-4f93bdcfb977",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "99d1b0ad-7c7a-49f5-b601-5990ceee8db8",
+              "leftValue": "={{ $('Loop Over Items').item.json.title }}",
+              "rightValue": "={{ $json.embeds[0].title }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        848,
+        -352
+      ],
+      "id": "77b5db5d-0ab9-43ec-8282-a19f60d9bdd6",
+      "name": "Filter1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "embeds[0].title",
+        "outputDataFrom": "input2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1248,
+        -224
+      ],
+      "id": "8d03acea-aa91-4a40-a8a4-7b7a73002eb8",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        -208
+      ],
+      "id": "4fcab8fb-5ea0-4198-9c5b-0c4793db698d",
+      "name": "Wait",
+      "webhookId": "4074723e-ffce-4509-a06c-c7ffcf7b2a87"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-11-01T19:58:52.244Z",
+      "createdAt": "2025-11-01T19:58:52.244Z",
+      "role": "workflow:owner",
+      "workflowId": "KW8NXCW9wW3uldwV",
+      "projectId": "9tVnjhoqECLAKTN1"
+    }
+  ],
+  "staticData": null,
+  "tags": [
+    {
+      "updatedAt": "2025-11-06T03:17:05.844Z",
+      "createdAt": "2025-11-06T03:17:05.844Z",
+      "id": "iosuFEQq5Z3odq2R",
+      "name": "rss"
+    },
+    {
+      "updatedAt": "2025-11-06T03:11:50.434Z",
+      "createdAt": "2025-11-06T03:11:50.434Z",
+      "id": "vgqvVrZ3n7HfHOM7",
+      "name": "main"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-06T03:17:07.218Z",
+  "versionId": "9e1c9c72-8d08-4339-a3ae-c5f7f490a325"
+}
