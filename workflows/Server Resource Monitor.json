@@ -1,84 +1,76 @@
 {
-  "active": true,
+  "active": false,
   "connections": {
-    "Trigger 1/hr": {
+    "When clicking 'Test workflow'": {
       "main": [
         [
           {
-            "node": "ServerIPs",
+            "node": "Set IP List",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "ServerIPs": {
+    "Set IP List": {
       "main": [
         [
           {
-            "node": "IPsSplit",
+            "node": "Split IP Addresses",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "IPsSplit": {
+    "Split IP Addresses": {
       "main": [
         [
           {
-            "node": "LoopOverIPs",
+            "node": "Get Memory Info",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Storage Info",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get CPU Info",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Call 'Resource Usage Monitor'": {
+    "Get Memory Info": {
       "main": [
         [
           {
-            "node": "LoopOverIPs",
+            "node": "Combine Results",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "LoopOverIPs": {
+    "Get Storage Info": {
       "main": [
         [
           {
-            "node": "Code in JavaScript",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Call 'Resource Usage Monitor'",
+            "node": "Combine Results",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Code in JavaScript": {
+    "Get CPU Info": {
       "main": [
         [
           {
-            "node": "combineEmbeds",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "combineEmbeds": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request",
+            "node": "Combine Results",
             "type": "main",
             "index": 0
           }
@@ -86,233 +78,167 @@
       ]
     }
   },
-  "createdAt": "2025-10-31T01:39:33.671Z",
-  "id": "3wgF00wqogSeUpxN",
-  "isArchived": false,
+  "createdAt": "2025-11-02T02:04:11.099Z",
+  "id": "eLDxYNcVvNPXwKPz",
+  "isArchived": true,
   "meta": {
     "templateCredsSetupCompleted": true
   },
   "name": "Server Resource Monitor",
   "nodes": [
     {
-      "parameters": {
-        "rule": {
-          "interval": [
-            {
-              "field": "hours"
-            }
-          ]
-        }
-      },
-      "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.2,
+      "parameters": {},
+      "id": "c2133843-c732-489f-a5f1-caf4ed8fcb8e",
+      "name": "When clicking 'Test workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
       "position": [
-        -928,
-        -560
-      ],
-      "id": "69365dff-5c6a-4a92-ab24-3d45df2de000",
-      "name": "Trigger 1/hr"
+        -640,
+        -224
+      ]
     },
     {
       "parameters": {
-        "fieldToSplitOut": "ips",
+        "values": {
+          "string": [
+            {
+              "name": "ip_addresses",
+              "value": "\"10.0.0.202\",\"10.0.0.203\",\"10.0.0.204\",\"10.0.0.205\",\"10.0.0.206\",\"10.0.0.207\"\"10.0.0.201\""
+            }
+          ]
+        },
         "options": {}
       },
+      "id": "d4ef8fbb-9d37-4397-b93c-2d16b7ac1c4c",
+      "name": "Set IP List",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "ip_addresses",
+        "options": {
+          "destinationFieldName": "ip"
+        }
+      },
+      "id": "25ebaaa8-88a0-4ac6-b624-012ce8f1425b",
+      "name": "Split IP Addresses",
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        -512,
-        -560
-      ],
-      "id": "eecc865a-d39a-4cfa-b978-285ef8433e7e",
-      "name": "IPsSplit"
+        -208,
+        -224
+      ]
     },
     {
       "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "48863004-a323-48e9-b0b7-bcaf58ab8ea8",
-              "name": "ips",
-              "value": "[\"10.0.0.201\", \"10.0.0.202\", \"10.0.0.203\", \"10.0.0.204\", \"10.0.0.205\", \"10.0.0.206\", \"10.0.0.207\" ]",
-              "type": "array"
-            }
-          ]
-        },
-        "options": {}
+        "authentication": "privateKey",
+        "command": "free -m | awk 'NR==2{printf \"{\\\"total_mb\\\":%s,\\\"used_mb\\\":%s,\\\"free_mb\\\":%s,\\\"available_mb\\\":%s}\", $2,$3,$4,$7}'"
       },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
+      "id": "e0196eef-9062-4d85-822a-794c3ff57ab8",
+      "name": "Get Memory Info",
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
       "position": [
-        -736,
-        -560
+        16,
+        -320
       ],
-      "id": "8429b3e0-943a-42bf-8a67-fba5d346e170",
-      "name": "ServerIPs"
-    },
-    {
-      "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "// Get the input\nconst inputData = $input.item.json;\n\n\n\n// console.log(inputData.summary)\n// Reconstruct with proper newlines\nif (inputData.summary) {\n  // Replace all escaped newlines with actual newlines\n  inputData.summary = inputData.summary\n    .replace(/\\\\n/g, '\\n')\n    .replace(/\\\\t/g, '\\t');\n}\n\nreturn inputData;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        288,
-        -656
-      ],
-      "id": "ff3691a0-8183-4be2-aa67-94e1dfa25023",
-      "name": "Code in JavaScript"
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "oC9YRhswroCQFN6G",
-          "mode": "list",
-          "cachedResultUrl": "/workflow/oC9YRhswroCQFN6G",
-          "cachedResultName": "Resource Usage Monitor"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "ip": "={{ $json.ips }}"
-          },
-          "matchingColumns": [
-            "ip"
-          ],
-          "schema": [
-            {
-              "id": "ip",
-              "displayName": "ip",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.3,
-      "position": [
-        288,
-        -512
-      ],
-      "id": "306cd8a0-a395-4151-94cb-a46fd557d8a8",
-      "name": "Call 'Resource Usage Monitor'",
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "options": {}
-      },
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        32,
-        -528
-      ],
-      "id": "2c9474da-4a24-435e-bfc6-79c52f4a0225",
-      "name": "LoopOverIPs"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "=https://discordapp.com/api/webhooks/1436176344974233773/6ZhxslGVdoeM8QunCCl1C4jBUSFW_E5TpEZRdCXLjyNCd5xbLEl4RdpIuxLA28IzwwL4",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json) }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        704,
-        -656
-      ],
-      "id": "3a358689-0a53-4abd-b8e6-20efe407883d",
-      "name": "HTTP Request"
-    },
-    {
-      "parameters": {
-        "jsCode": "const allItems = $input.all();\n\n// Helper function for progress bars\nfunction createProgressBar(percent, length = 10) {\n  if (!percent || isNaN(percent)) return '░'.repeat(length);\n  const filled = Math.round((percent / 100) * length);\n  const empty = length - filled;\n  return '▓'.repeat(filled) + '░'.repeat(empty);\n}\n\n// Create fields array\nconst fields = [];\n\nfor (let i = 0; i < allItems.length; i++) {\n  const item = allItems[i];\n  const embed = item.json.embeds[0];\n  const title = embed.title || 'Unknown Server';\n  const isError = title.includes('Error');\n  \n  let value = '';\n  \n  if (isError) {\n    value = '```diff\\n- Connection Failed\\n- Unable to fetch stats\\n```';\n  } else {\n    // Extract detailed stats from description\n    const desc = embed.description || '';\n    const cpuMatch = desc.match(/Cores:\\s+(\\d+).*?Usage:\\s+(\\d+\\.?\\d*)%/s);\n    const memMatch = desc.match(/Total:\\s+([\\d.]+\\s+\\w+).*?Used:\\s+([\\d.]+\\s+\\w+)\\s+\\((\\d+\\.?\\d*)%\\)/s);\n    const storageMatches = [...desc.matchAll(/\\*(\\/dev\\/[\\w\\/]+)\\*.*?Total:\\s+([\\d.]+\\s+\\w+).*?\\((\\d+)%\\)/gs)];\n    \n    const cpuCores = cpuMatch ? cpuMatch[1] : 'N/A';\n    const cpuUsage = cpuMatch ? cpuMatch[2] : 'N/A';\n    const memTotal = memMatch ? memMatch[1] : 'N/A';\n    const memUsed = memMatch ? memMatch[2] : 'N/A';\n    const memPercent = memMatch ? memMatch[3] : 'N/A';\n    \n    // Build cleaner display\n    value = '```\\n';\n    value += `💻 CPU (${cpuCores} cores)\\n`;\n    value += `   ${parseFloat(cpuUsage).toFixed(1)}%\\n`;\n    value += `   ${createProgressBar(parseFloat(cpuUsage))}\\n\\n`;\n    \n    value += `🧠 Memory\\n`;\n    value += `   ${memUsed} / ${memTotal}\\n`;\n    value += `   ${parseFloat(memPercent).toFixed(1)}%\\n`;\n    value += `   ${createProgressBar(parseFloat(memPercent))}\\n\\n`;\n    \n    // Show ALL storage devices\n    if (storageMatches.length > 0) {\n      value += `💾 Storage\\n`;\n      storageMatches.forEach((match) => {\n        const device = match[1].split('/').pop();\n        const percent = match[3];\n        value += `   ${device}: ${percent}%\\n`;\n      });\n    }\n    \n    value += '```';\n  }\n  \n  fields.push({\n    name: title,\n    value: value,\n    inline: true\n  });\n  \n  // Add a spacer field after every 2 items to force 2 per row\n  if ((i + 1) % 2 === 0 && i < allItems.length - 1) {\n    fields.push({\n      name: '\\u200b', // Invisible character\n      value: '\\u200b',\n      inline: false // This breaks to a new row\n    });\n  }\n}\n\n// Determine overall health color\nconst maxUsage = Math.max(...allItems\n  .map(item => {\n    const embed = item.json.embeds[0];\n    const desc = embed.description || '';\n    const memMatch = desc.match(/Memory.*?\\((\\d+\\.?\\d*)%\\)/s);\n    return memMatch ? parseFloat(memMatch[1]) : 0;\n  })\n  .filter(val => val > 0)\n);\n\nconst healthColor = maxUsage > 90 ? 15158332 : (maxUsage > 75 ? 16776960 : 3447003);\nconst errorCount = fields.filter(f => f.name.includes('❌')).length;\n\n// Return single embed with inline fields\nreturn [{\n  json: {\n    embeds: [{\n      title: '📊 Server Resources Dashboard',\n      description: `**${allItems.length} servers** monitored • ${errorCount > 0 ? `⚠️ ${errorCount} error(s)` : '✅ All online'}`,\n      fields: fields,\n      color: healthColor,\n      timestamp: new Date().toISOString(),\n      footer: {\n        text: `Last updated • ${new Date().toLocaleString()}`\n      }\n    }]\n  }\n}];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        480,
-        -656
-      ],
-      "id": "46d39072-cd4e-472a-9651-41688ecf398f",
-      "name": "combineEmbeds"
-    }
-  ],
-  "pinData": {
-    "Trigger 1/hr": [
-      {
-        "json": {
-          "timestamp": "2025-11-06T17:00:47.046-05:00",
-          "Readable date": "November 6th 2025, 5:00:47 pm",
-          "Readable time": "5:00:47 pm",
-          "Day of week": "Thursday",
-          "Year": "2025",
-          "Month": "November",
-          "Day of month": "06",
-          "Hour": "17",
-          "Minute": "00",
-          "Second": "47",
-          "Timezone": "America/New_York (UTC-05:00)"
+      "credentials": {
+        "sshPrivateKey": {
+          "id": "J8YoUQo9NZFhjoYx",
+          "name": "SSH Password account"
         }
       }
-    ]
-  },
+    },
+    {
+      "parameters": {
+        "authentication": "privateKey",
+        "command": "df -BG / | awk 'NR==2{printf \"{\\\"total_gb\\\":\\\"%s\\\",\\\"used_gb\\\":\\\"%s\\\",\\\"available_gb\\\":\\\"%s\\\",\\\"use_percent\\\":\\\"%s\\\"}\", $2,$3,$4,$5}'"
+      },
+      "id": "a889354a-eb0b-42c5-93a1-2e2a48efe9b4",
+      "name": "Get Storage Info",
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        16,
+        -128
+      ],
+      "credentials": {
+        "sshPrivateKey": {
+          "id": "J8YoUQo9NZFhjoYx",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "privateKey",
+        "command": "top -bn1 | grep \"Cpu(s)\" | sed \"s/.*, *\\([0-9.]*\\)%* id.*/\\1/\" | awk '{printf \"{\\\"cpu_idle_percent\\\":%.2f,\\\"cpu_used_percent\\\":%.2f}\", $1, 100-$1}'"
+      },
+      "id": "962c48d8-2597-4af5-ab2a-0bf70f8f1249",
+      "name": "Get CPU Info",
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        16,
+        80
+      ],
+      "credentials": {
+        "sshPrivateKey": {
+          "id": "J8YoUQo9NZFhjoYx",
+          "name": "SSH Password account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combine all resource data for each IP\nconst items = [];\n\nfor (let i = 0; i < $input.all().length; i += 3) {\n  const memoryNode = $input.all()[i];\n  const storageNode = $input.all()[i + 1];\n  const cpuNode = $input.all()[i + 2];\n  \n  const ip = memoryNode.json.ip;\n  \n  // Parse the JSON strings from command outputs\n  const memory = JSON.parse(memoryNode.json.stdout);\n  const storage = JSON.parse(storageNode.json.stdout);\n  const cpu = JSON.parse(cpuNode.json.stdout);\n  \n  items.push({\n    json: {\n      ip: ip,\n      timestamp: new Date().toISOString(),\n      memory: {\n        total_mb: memory.total_mb,\n        used_mb: memory.used_mb,\n        free_mb: memory.free_mb,\n        available_mb: memory.available_mb,\n        free_percent: ((memory.free_mb / memory.total_mb) * 100).toFixed(2)\n      },\n      storage: {\n        total: storage.total_gb,\n        used: storage.used_gb,\n        available: storage.available_gb,\n        use_percent: storage.use_percent\n      },\n      cpu: {\n        used_percent: cpu.cpu_used_percent.toFixed(2),\n        idle_percent: cpu.cpu_idle_percent.toFixed(2)\n      }\n    }\n  });\n}\n\nreturn items;"
+      },
+      "id": "1bea5910-0c3f-4e7e-9b57-9be4469ab84f",
+      "name": "Combine Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        -128
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Server Resource Monitor\n\nThis workflow checks system resources for servers:\n- **IPs:** 10.0.0.202 - 10.0.0.207\n- **Metrics:** Memory, Storage, CPU\n\n### Setup Required:\n1. Configure SSH credentials\n2. Ensure SSH access to all servers\n3. Test workflow manually or schedule it\n\n### Output:\nCombined resource data for all servers",
+        "height": 340,
+        "width": 380
+      },
+      "id": "2576e6a9-04c5-4b89-a6fd-861eae8eacc2",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -64
+      ]
+    }
+  ],
+  "pinData": {},
   "settings": {
     "executionOrder": "v1"
   },
   "shared": [
     {
-      "updatedAt": "2025-10-31T01:39:33.671Z",
-      "createdAt": "2025-10-31T01:39:33.671Z",
+      "updatedAt": "2025-11-02T02:04:11.099Z",
+      "createdAt": "2025-11-02T02:04:11.099Z",
       "role": "workflow:owner",
-      "workflowId": "3wgF00wqogSeUpxN",
+      "workflowId": "eLDxYNcVvNPXwKPz",
       "projectId": "9tVnjhoqECLAKTN1"
     }
   ],
-  "staticData": {
-    "node:Schedule Trigger": {
-      "recurrenceRules": []
-    },
-    "node:Schedule Trigger1": {
-      "recurrenceRules": []
-    },
-    "node:Trigger 1/hr": {
-      "recurrenceRules": []
-    },
-    "node:Trigger 1/Week/Sun": {
-      "recurrenceRules": []
-    }
-  },
-  "tags": [
-    {
-      "updatedAt": "2025-11-06T03:11:50.434Z",
-      "createdAt": "2025-11-06T03:11:50.434Z",
-      "id": "vgqvVrZ3n7HfHOM7",
-      "name": "main"
-    },
-    {
-      "updatedAt": "2025-11-06T03:11:26.029Z",
-      "createdAt": "2025-11-06T03:11:26.029Z",
-      "id": "2Fe7Mr4Z10EcxIti",
-      "name": "monitoring"
-    }
-  ],
-  "triggerCount": 1,
-  "updatedAt": "2025-11-07T02:45:59.487Z",
-  "versionId": "396e4d84-23c4-4eae-818c-b3dd609f03f4"
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-06T03:16:25.603Z",
+  "versionId": "a668bd68-ae96-4ab0-a83d-8a724fa8db06"
 }
