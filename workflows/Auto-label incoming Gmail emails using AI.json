@@ -1,5 +1,5 @@
 {
-  "active": true,
+  "active": false,
   "connections": {
     "SetMailFields": {
       "main": [
@@ -350,6 +350,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-11-06T03:13:41.614Z",
+  "updatedAt": "2025-11-08T04:02:44.280Z",
   "versionId": "966cb2a5-70e7-4f1a-b8db-2dba55108add"
 }
