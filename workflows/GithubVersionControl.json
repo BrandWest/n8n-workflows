@@ -659,7 +659,7 @@
     {
       "parameters": {
         "authentication": "webhook",
-        "content": "=✅ Backup has completed - {{ $('Loop Over Items1').all().length }} workflows have been processed.",
+        "content": "=✅ Backup has completed - **{{ $('Loop Over Items1').all().length }}** workflows have been processed.",
         "options": {}
       },
       "type": "n8n-nodes-base.discord",
@@ -702,6 +702,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2025-11-08T02:57:37.029Z",
-  "versionId": "847b0c1d-1066-4d0f-8844-e9e22d7c4f1f"
+  "updatedAt": "2025-11-08T02:58:21.807Z",
+  "versionId": "5118d7ab-e5f0-48d8-b757-81999a204152"
 }
