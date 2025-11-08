@@ -155,7 +155,7 @@
             {
               "id": "c14bbfd9-f36b-44ea-84c1-8f2146dd6831",
               "leftValue": "={{ $json.isoDate }}",
-              "rightValue": "={{ $now.minus(1, 'day') }}",
+              "rightValue": "={{ $now.minus(1, 'hour') }}",
               "operator": {
                 "type": "dateTime",
                 "operation": "afterOrEquals"
@@ -194,6 +194,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2025-11-06T03:18:58.130Z",
-  "versionId": "525c1855-8869-4015-97d0-8fe117c4fc28"
+  "updatedAt": "2025-11-08T04:01:56.318Z",
+  "versionId": "b2fc1611-490a-48d1-bbd4-a43058bd7dbf"
 }
