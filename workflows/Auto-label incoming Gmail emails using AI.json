@@ -1,0 +1,355 @@
+{
+  "active": true,
+  "connections": {
+    "SetMailFields": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Call 'CallGmailLabelingAgent'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'CallGmailLabelingAgent'": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "messages": {
+      "main": [
+        [
+          {
+            "node": "SetMailFields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-10-25T03:07:22.351Z",
+  "id": "6XZMMHpZPsqFCEix",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Auto-label incoming Gmail emails using AI",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "68ea9e91-d91a-4443-834f-4e5d98fb932b",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "92cedd9d-e26f-4159-b416-5ef263d921bf",
+              "name": "body",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "2946dc5c-9ee6-4318-9167-0b7c58f3817b",
+              "name": "From",
+              "value": "={{ $json.from.value[0].address }}",
+              "type": "string"
+            },
+            {
+              "id": "5f0625db-066f-4894-bfc8-7121f79e57d9",
+              "name": "Subject",
+              "value": "={{ $json.subject  || \"(No Subject)\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -864,
+        -800
+      ],
+      "id": "4815b6ff-6d27-493b-9e98-1a946d74e4f2",
+      "name": "SetMailFields"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1OiE0hUVkME068CG8Z8HlGlKFxBkhyDrv7GFaKnb3OsI",
+          "mode": "list",
+          "cachedResultName": "labeling_results",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OiE0hUVkME068CG8Z8HlGlKFxBkhyDrv7GFaKnb3OsI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "results",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OiE0hUVkME068CG8Z8HlGlKFxBkhyDrv7GFaKnb3OsI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('messages').item.json.id }}",
+            "summary": "={{ $json.summaryOfSteps }}",
+            "labels": "={{ $json.labels_added.join(', ') }}",
+            "subject": "={{ $('messages').item.json.Subject }}",
+            "from": "={{ $('messages').item.json.From }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "labels",
+              "displayName": "labels",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "from",
+              "displayName": "from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -128,
+        -784
+      ],
+      "id": "c59dd93d-c33a-4c62-afb8-59bace3ff4b6",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "C80Yu9L7FK1DLAi4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -640,
+        -800
+      ],
+      "id": "94c606bc-8b64-44f1-a369-f3b8641f064c",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "uOtCgatTrih0M43X",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/uOtCgatTrih0M43X",
+          "cachedResultName": "CallGmailLabelingAgent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message_json": "={{ $('Loop Over Items').item.json}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "message_json",
+              "displayName": "message_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            },
+            {
+              "id": "known_labels",
+              "displayName": "known_labels",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -336,
+        -784
+      ],
+      "id": "1be8b779-483a-41e3-8332-817eac969801",
+      "name": "Call 'CallGmailLabelingAgent'"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "-label:tagged in:inbox -is:sent -is:trash -is:spam"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1232,
+        -800
+      ],
+      "id": "1d0c0096-4524-4cdf-904c-a92c8a2b3664",
+      "name": "messages",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HAqDfkIe5gd42otF",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-10-25T03:07:22.351Z",
+      "createdAt": "2025-10-25T03:07:22.351Z",
+      "role": "workflow:owner",
+      "workflowId": "6XZMMHpZPsqFCEix",
+      "projectId": "9tVnjhoqECLAKTN1"
+    }
+  ],
+  "staticData": {
+    "node:messages": {
+      "messages": {
+        "lastTimeChecked": 1762566150,
+        "possibleDuplicates": [
+          "19a612118e16f069"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "updatedAt": "2025-11-06T03:13:40.322Z",
+      "createdAt": "2025-11-06T03:13:40.322Z",
+      "id": "dBNXtpq5hPMsEUA4",
+      "name": "gmail"
+    },
+    {
+      "updatedAt": "2025-11-06T03:13:31.124Z",
+      "createdAt": "2025-11-06T03:13:31.124Z",
+      "id": "fkkeZV6oQpGSZbdv",
+      "name": "ai"
+    },
+    {
+      "updatedAt": "2025-11-06T03:11:50.434Z",
+      "createdAt": "2025-11-06T03:11:50.434Z",
+      "id": "vgqvVrZ3n7HfHOM7",
+      "name": "main"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2025-11-06T03:13:41.614Z",
+  "versionId": "966cb2a5-70e7-4f1a-b8db-2dba55108add"
+}
