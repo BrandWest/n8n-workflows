@@ -1,17 +1,6 @@
 {
-  "active": false,
+  "active": true,
   "connections": {
-    "When clicking ‘Execute workflow’": {
-      "main": [
-        [
-          {
-            "node": "Get row(s) in sheet",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Get row(s) in sheet": {
       "main": [
         [
@@ -49,12 +38,7 @@
       "main": [
         [
           {
-            "node": "Get many messages",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Wait",
+            "node": "Filter2",
             "type": "main",
             "index": 0
           }
@@ -112,11 +96,34 @@
         ]
       ]
     },
-    "Get many messages": {
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "Filter2": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
       "main": [
         [
           {
             "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
             "type": "main",
             "index": 0
           }
@@ -127,31 +134,20 @@
       "main": [
         [
           {
-            "node": "Filter1",
+            "node": "Send a message",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Filter1": {
+    "Schedule Trigger": {
       "main": [
         [
           {
-            "node": "Merge",
+            "node": "Get row(s) in sheet",
             "type": "main",
             "index": 0
-          }
-        ]
-      ]
-    },
-    "Wait": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 1
           }
         ]
       ]
@@ -165,17 +161,6 @@
   },
   "name": "RSSFeeds",
   "nodes": [
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        -640,
-        -96
-      ],
-      "id": "732c4c44-ed0b-42cd-897d-4c02944c1c76",
-      "name": "When clicking ‘Execute workflow’"
-    },
     {
       "parameters": {
         "documentId": {
@@ -305,7 +290,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        464,
+        448,
         -80
       ],
       "id": "cc79fd61-eb7e-43df-b53b-0f9a70c0d7f7",
@@ -461,7 +446,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        848,
+        960,
         -80
       ],
       "id": "5a0c230d-162c-4ec5-9c79-4ad764c2ee1b",
@@ -501,7 +486,6 @@
       "parameters": {
         "authentication": "oAuth2",
         "resource": "message",
-        "operation": "getAll",
         "guildId": {
           "__rl": true,
           "value": "993159365924241408",
@@ -516,48 +500,35 @@
           "cachedResultName": "rss",
           "cachedResultUrl": "https://discord.com/channels/993159365924241408/1434167626883534869"
         },
-        "returnAll": true,
-        "options": {}
+        "options": {},
+        "embeds": {
+          "values": [
+            {
+              "description": "={{ $json.content }}",
+              "author": "={{ $json.isoDate }}",
+              "timestamp": "={{ $json.isoDate }}",
+              "title": "={{ $json.title }}",
+              "url": "={{ $json.link }}"
+            }
+          ]
+        }
       },
       "type": "n8n-nodes-base.discord",
       "typeVersion": 2,
       "position": [
-        464,
-        -352
+        1152,
+        -368
       ],
       "id": "b9c72e57-718a-4d99-967a-904d402b9ef7",
-      "name": "Get many messages",
+      "name": "Send a message",
       "webhookId": "dadd9c13-45e4-488a-9bfa-efb2d81f3b75",
-      "executeOnce": true,
+      "executeOnce": false,
       "credentials": {
         "discordOAuth2Api": {
           "id": "T6aDxtG3GOSh3bjy",
           "name": "Discord account"
         }
       }
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "845a7d5f-4e6d-4299-998c-0b916d48b139",
-              "name": "embeds[0].title",
-              "value": "={{ $json.embeds[0].title }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        656,
-        -352
-      ],
-      "id": "e8b58b97-df3a-42a4-add2-4f93bdcfb977",
-      "name": "Edit Fields"
     },
     {
       "parameters": {
@@ -570,12 +541,13 @@
           },
           "conditions": [
             {
-              "id": "99d1b0ad-7c7a-49f5-b601-5990ceee8db8",
-              "leftValue": "={{ $('Loop Over Items').item.json.title }}",
-              "rightValue": "={{ $json.embeds[0].title }}",
+              "id": "a968f4d4-c334-48ec-bdb7-5feadbd18bbe",
+              "leftValue": "={{ $json.title }}",
+              "rightValue": "",
               "operator": {
                 "type": "string",
-                "operation": "notEquals"
+                "operation": "notEmpty",
+                "singleValue": true
               }
             }
           ],
@@ -586,41 +558,110 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
       "position": [
-        848,
-        -352
+        368,
+        -416
       ],
-      "id": "77b5db5d-0ab9-43ec-8282-a19f60d9bdd6",
-      "name": "Filter1"
+      "id": "e2ae00d1-8acd-4855-9c75-c945e901e2f5",
+      "name": "Filter2"
     },
     {
       "parameters": {
-        "mode": "combine",
-        "fieldsToMatchString": "embeds[0].title",
-        "outputDataFrom": "input2",
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6fb2f91d-fe1f-41f7-b635-ec4019e9f00d",
+              "leftValue": "={{ $json.content }}",
+              "rightValue": "=<p>",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
         "options": {}
       },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
       "position": [
-        1248,
-        -224
+        576,
+        -416
       ],
-      "id": "8d03acea-aa91-4a40-a8a4-7b7a73002eb8",
-      "name": "Merge"
+      "id": "d998ca3c-af86-4989-aa1a-20b6f341b242",
+      "name": "If"
     },
     {
       "parameters": {
-        "amount": 1
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9462d3f9-79d3-406e-889e-f0581b822ada",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "5a3c297e-dd07-4786-80cf-42f5f3b843e8",
+              "name": "link",
+              "value": "={{ $json.link }}",
+              "type": "string"
+            },
+            {
+              "id": "789d85cf-8aef-4573-baad-545c9a14fe7e",
+              "name": "content",
+              "value": "={{ $json.content.replace(/(<([^>]+)>)/gmi, \"\") }}",
+              "type": "string"
+            },
+            {
+              "id": "1dea5cd0-09a0-4873-9e4b-8699b27a2ac0",
+              "name": "contentSnippet",
+              "value": "={{ $json.contentSnippet.replace(/(<([^>]+)>)/gmi, \"\") }}",
+              "type": "string"
+            },
+            {
+              "id": "7332c0c7-e81c-4a9e-95f4-983b8e1bf816",
+              "name": "isoDate",
+              "value": "={{ $json.isoDate }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
       },
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
       "position": [
-        656,
-        -208
+        912,
+        -480
       ],
-      "id": "4fcab8fb-5ea0-4198-9c5b-0c4793db698d",
-      "name": "Wait",
-      "webhookId": "4074723e-ffce-4509-a06c-c7ffcf7b2a87"
+      "id": "e4831515-b33a-4381-8b90-fba004394ab7",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -640,
+        -96
+      ],
+      "id": "a15c15b2-fc5a-4633-8e59-4d43c75ae5f1",
+      "name": "Schedule Trigger"
     }
   ],
   "pinData": {},
@@ -636,7 +677,11 @@
       "projectId": "9tVnjhoqECLAKTN1"
     }
   ],
-  "staticData": null,
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    }
+  },
   "tags": [
     {
       "updatedAt": "2025-11-06T03:17:05.844Z",
@@ -651,7 +696,7 @@
       "name": "main"
     }
   ],
-  "triggerCount": 0,
-  "updatedAt": "2025-11-06T03:17:07.218Z",
-  "versionId": "9e1c9c72-8d08-4339-a3ae-c5f7f490a325"
+  "triggerCount": 1,
+  "updatedAt": "2025-11-08T04:02:13.920Z",
+  "versionId": "e9c4854f-f421-4f29-bacf-ea0958826069"
 }
