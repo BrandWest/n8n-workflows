@@ -114,17 +114,6 @@
         ]
       ]
     },
-    "Starting Message": {
-      "main": [
-        [
-          {
-            "node": "Config",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Edit existing file": {
       "main": [
         [
@@ -158,7 +147,7 @@
       "main": [
         [
           {
-            "node": "Starting Message",
+            "node": "Discord",
             "type": "main",
             "index": 0
           }
@@ -183,6 +172,11 @@
             "node": "Completed Notification",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "DiscordCompleted",
+            "type": "main",
+            "index": 0
           }
         ],
         [
@@ -195,6 +189,17 @@
             "node": "Merge Items",
             "type": "main",
             "index": 1
+          }
+        ]
+      ]
+    },
+    "Discord": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -331,7 +336,6 @@
             "caseSensitive": true,
             "typeValidation": "strict"
           },
-          "combinator": "and",
           "conditions": [
             {
               "id": "bb64ed2c-5193-4b8f-a9e8-55cb83ea244c",
@@ -342,7 +346,8 @@
               "leftValue": "={{ $json.updatedAt }}",
               "rightValue": "={{ $now.minus(1, 'days') }}"
             }
-          ]
+          ],
+          "combinator": "and"
         },
         "options": {}
       },
@@ -354,36 +359,6 @@
         448
       ],
       "typeVersion": 2.2
-    },
-    {
-      "parameters": {
-        "content": "# Links\n- ## [Github Folder](https://github.com/AndrewBoichenko/n8n-workflows/)",
-        "height": 120,
-        "width": 400
-      },
-      "id": "5b212e1d-6fa0-420a-ae31-d7d0a7a031df",
-      "name": "Sticky Note3",
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        -1504,
-        288
-      ],
-      "typeVersion": 1
-    },
-    {
-      "parameters": {
-        "content": "# How it works \nThis workflow will backup all instance workflows to GitHub every 24 hours.\n\nThe files are saved into folders using `repo_path` for the directory path and `ID.json` for the filename.\nThe Repo Owner, Repo Name and Main folder are set using the `Config` node in the subworkflow. \n\nThe workflow runs calls itself to help reduce memory usage, Once the workflow has completed it will send an optional notification to Slack.\n\nPlease check out my other items on [gumroad](https://boanse.gumroad.com/?section=k_Sn6LcT_dzJFnp5jmsM5A%3D%3D)\nYou might also like something else☺️",
-        "height": 340,
-        "width": 400
-      },
-      "id": "d3f96b6e-e6af-460b-9cc2-9cfc5bb52903",
-      "name": "Sticky Note4",
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        -1504,
-        448
-      ],
-      "typeVersion": 1
     },
     {
       "parameters": {
@@ -606,30 +581,6 @@
           "mode": "name",
           "value": "#notifications"
         },
-        "text": "=Information_source:  Starting Workflow Backup [{{ $execution.id }}]",
-        "otherOptions": {
-          "includeLinkToWorkflow": false
-        }
-      },
-      "id": "9c637d0b-a4a3-40ba-bb86-c34746890cc5",
-      "name": "Starting Message",
-      "type": "n8n-nodes-base.slack",
-      "position": [
-        -800,
-        448
-      ],
-      "webhookId": "c02eb407-5547-4aa0-9ebf-46dab67b63b6",
-      "typeVersion": 2.2,
-      "disabled": true
-    },
-    {
-      "parameters": {
-        "select": "channel",
-        "channelId": {
-          "__rl": true,
-          "mode": "name",
-          "value": "#notifications"
-        },
         "text": "=✅ Backup has completed - {{ $('Get Workflows').all().length }} workflows have been processed.",
         "otherOptions": {}
       },
@@ -713,34 +664,45 @@
     },
     {
       "parameters": {
-        "resource": "file",
-        "owner": {
-          "__rl": true,
-          "mode": "name",
-          "value": "={{ $('Config').item.json.repo_owner }}"
-        },
-        "repository": {
-          "__rl": true,
-          "mode": "name",
-          "value": "={{ $('Config').item.json.repo_name }}"
-        },
-        "filePath": "={{ $('Config').item.json.sub_path }}/{{$('Loop Over Items1').item.json.name}}.json",
-        "fileContent": "={{$('isDiffOrNew').item.json[\"n8n_data_stringy\"]}}",
-        "commitMessage": "={{$('Loop Over Items1').item.json.name}} ({{$json.github_status}})"
+        "authentication": "webhook",
+        "content": "=Information_source:  Starting Workflow Backup [{{ $execution.id }}]",
+        "options": {}
       },
-      "id": "bc123b99-5eaf-4d38-8c91-1707a87bfc8c",
-      "name": "Create new file1",
-      "type": "n8n-nodes-base.github",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
       "position": [
-        336,
-        576
+        -816,
+        448
       ],
-      "webhookId": "b440dead-fad0-4546-8ca7-201aa2ea2936",
-      "typeVersion": 1,
+      "id": "4304bd8d-e767-4aac-842e-3669757a1b4a",
+      "name": "Discord",
+      "webhookId": "ff55bc3a-f520-40a5-97e3-546adfd503e6",
       "credentials": {
-        "githubApi": {
-          "id": "MLUZAcF2RshMp4aG",
-          "name": "GitHub account"
+        "discordWebhookApi": {
+          "id": "DCmJNHLvHmOeAESq",
+          "name": "DiscordWebhook - versionControl"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=✅ Backup has completed - {{ $('Get Workflows').all().length }} workflows have been processed.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        304,
+        -80
+      ],
+      "id": "5528ff7a-ac69-45b9-b7c8-4f7acd4dd602",
+      "name": "DiscordCompleted",
+      "webhookId": "ff55bc3a-f520-40a5-97e3-546adfd503e6",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "DCmJNHLvHmOeAESq",
+          "name": "DiscordWebhook - versionControl"
         }
       }
     }
@@ -768,6 +730,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2025-11-08T02:42:57.043Z",
-  "versionId": "2e1895e5-b87a-472a-93ca-5184a0f1ad6e"
+  "updatedAt": "2025-11-08T02:51:28.683Z",
+  "versionId": "6d4d91b1-2b33-476c-8556-71ef7333854d"
 }
