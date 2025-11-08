@@ -1,0 +1,579 @@
+{
+  "active": false,
+  "connections": {
+    "Execute SSH Command1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Prepare Commands",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Commands": {
+      "main": [
+        [
+          {
+            "node": "Execute SSH Command1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Results": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aggregate Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-03T17:05:46.840Z",
+  "id": "oC9YRhswroCQFN6G",
+  "isArchived": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "name": "Resource Usage Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "privateKey",
+        "command": "={{ $json.command }}",
+        "cwd": "=/"
+      },
+      "id": "7ae8c047-1144-4a36-b02d-a50d1b74e9fc",
+      "name": "Execute SSH Command1",
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        32,
+        -400
+      ],
+      "alwaysOutputData": false,
+      "credentials": {
+        "sshPrivateKey": {
+          "id": "CgvqlCQ8sOUqEjCm",
+          "name": "SSH Password account 2"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "ip"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -432,
+        -400
+      ],
+      "id": "63676ce9-5be6-40d8-8d02-41b3cce54572",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Define all the commands to run\nconst commands = [\n  {\n    name: 'memory',\n    command: \"free -m | awk 'NR==2{printf \\\"{\\\\\\\"total_mb\\\\\\\":%s,\\\\\\\"used_mb\\\\\\\":%s,\\\\\\\"free_mb\\\\\\\":%s,\\\\\\\"available_mb\\\\\\\":%s}\\\", $2,$3,$4,$7}'\"\n  },\n  {\n    name: 'storage',\n    command: 'python3 /home/caboose/resources.py --format json --mounted-only',\n  },\n  {\n    name: 'cpu',\n    command: \"echo -n '{\\\"cpu_count\\\":'; nproc; echo -n ','; top -bn1 | grep \\\"Cpu(s)\\\" | sed \\\"s/.*, *\\\\([0-9.]*\\\\)%* id.*/\\\\1/\\\" | awk '{printf \\\"\\\\\\\"cpu_idle_percent\\\\\\\":%.2f,\\\\\\\"cpu_used_percent\\\\\\\":%.2f\\\", $1, 100-$1}'; echo -n '}'\"\n  }\n];\n\n// Get the current IP from the loop\nconst currentIp = $input.first().json.ip\n\n// Create an item for each command with the current IP\nreturn commands.map(cmd => ({\n  json: {\n    ip: currentIp,\n    command_name: cmd.name,\n    command: cmd.command\n  }\n}));"
+      },
+      "id": "78dc3a74-e582-4180-b758-aa453f3327d4",
+      "name": "Prepare Commands",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Helper function to convert MB to human readable\nfunction formatBytes(mb) {\n  if (!mb || isNaN(mb)) return 'N/A';\n  if (mb >= 1024) {\n    return (mb / 1024).toFixed(2) + ' GB';\n  }\n  return mb + ' MB';\n}\n\nfunction formatBytesFromBytes(bytes) {\n  if (!bytes || isNaN(bytes)) return 'N/A';\n  const mb = bytes / (1024 * 1024);\n  if (mb >= 1024) {\n    return (mb / 1024).toFixed(2) + ' GB';\n  }\n  return mb.toFixed(2) + ' MB';\n}\n\n// Helper function to create progress bar\nfunction createProgressBar(percent, length = 10) {\n  if (!percent || isNaN(percent)) return '░'.repeat(length);\n  const filled = Math.round((percent / 100) * length);\n  const empty = length - filled;\n  return '█'.repeat(filled) + '░'.repeat(empty);\n}\n\n// Helper function to safely get value\nfunction safeValue(val, defaultVal = 'N/A') {\n  return (val !== undefined && val !== null) ? val : defaultVal;\n}\n\n// ===== ADD THIS ERROR HANDLING SECTION =====\n// Check if any input has an error\nconst allInputs = $input.all();\nconst hasError = allInputs.some(item => item.json.error);\n\nif (hasError) {\n  // Find the error item\n  const errorItem = allInputs.find(item => item.json.error);\n  const currentIp = $('Prepare Commands').first().json.ip || 'Unknown';\n  \n  // Return error embed\n  return [{\n    json: {\n      embeds: [{\n        title: `❌ Server Error: ${currentIp}`,\n        description: `**⚠️ Failed to fetch server resources**\\n\\n\\`\\`\\`\\n${errorItem.json.error}\\n\\`\\`\\`\\n\\n*Last checked: ${new Date().toLocaleString()}*`,\n        color: 15158332, // Red\n        timestamp: new Date().toISOString(),\n        footer: {\n          text: \"Server Resource Monitor - Error\"\n        }\n      }]\n    }\n  }];\n}\n// ===== END ERROR HANDLING SECTION =====\n// Get the current IP\nconst currentIp = $('Prepare Commands').first().json.ip\n\n// Collect all command results for this IP\nconst result = {\n  ip: currentIp,\n  timestamp: new Date().toISOString(),\n  resources: {\n    storage_devices: []\n  },\n  summary: '',\n  discord_embed: {}\n};\n\n// Process each command result\nfor (const item of $input.all()) {\n  console.log('Processing item:', JSON.stringify(item.json, null, 2));\n  \n  const commandName = item.json.command_name || item.json.command || item.json.type || item.json.resource_type;\n  console.log('Command name:', commandName);\n  \n  let parsedData;\n  if (item.json.stdout) {\n    try {\n      parsedData = JSON.parse(item.json.stdout);\n    } catch (error) {\n      parsedData = {\n        error: 'Failed to parse output',\n        raw_output: item.json.stdout\n      };\n    }\n  } else {\n    parsedData = item.json;\n  }\n  \n  // Detect resource type\n  let detectedType = commandName;\n  if (!detectedType) {\n    if (parsedData.cpu_count !== undefined) detectedType = 'cpu';\n    else if (parsedData.total_mb !== undefined) detectedType = 'memory';\n    else if (Array.isArray(parsedData) && parsedData[0]?.device) detectedType = 'storage';\n  }\n  \n  console.log('Detected type:', detectedType);\n  \n  // Handle storage as array\n  if (detectedType === 'storage') {\n    if (Array.isArray(parsedData)) {\n      result.resources.storage_devices = parsedData;\n    } else {\n      result.resources.storage_devices = [parsedData];\n    }\n  } else if (detectedType) {\n    result.resources[detectedType] = parsedData;\n  }\n}\n\nconsole.log('Final resources:', JSON.stringify(result.resources, null, 2));\n\n// Format memory data\nif (result.resources.memory && result.resources.memory.total_mb) {\n  const mem = result.resources.memory;\n  mem.free_percent = ((mem.free_mb / mem.total_mb) * 100).toFixed(1);\n  mem.available_percent = ((mem.available_mb / mem.total_mb) * 100).toFixed(1);\n  mem.used_percent = (100 - parseFloat(mem.free_percent)).toFixed(1);\n  \n  mem.total_human = formatBytes(mem.total_mb);\n  mem.used_human = formatBytes(mem.used_mb);\n  mem.free_human = formatBytes(mem.free_mb);\n  mem.available_human = formatBytes(mem.available_mb);\n}\n\n// Format storage data - now handles multiple devices\nif (result.resources.storage_devices && result.resources.storage_devices.length > 0) {\n  result.resources.storage_devices = result.resources.storage_devices.map(storage => {\n    // Handle different formats\n    if (storage.total_bytes) {\n      // Format from bytes\n      storage.total_human = formatBytesFromBytes(storage.total_bytes);\n      storage.used_human = formatBytesFromBytes(storage.used_bytes);\n      storage.available_human = formatBytesFromBytes(storage.available_bytes);\n    } else if (storage.total) {\n      // Format from MB string (e.g., \"100M\")\n      const totalMB = parseFloat(storage.total.replace('M', ''));\n      const usedMB = parseFloat(storage.used.replace('M', ''));\n      const availableMB = parseFloat(storage.available.replace('M', ''));\n      storage.total_human = formatBytes(totalMB);\n      storage.used_human = formatBytes(usedMB);\n      storage.available_human = formatBytes(availableMB);\n    }\n    \n    // Parse percentage\n    if (typeof storage.use_percent === 'string') {\n      storage.use_percent_num = parseFloat(storage.use_percent.replace('%', ''));\n    } else {\n      storage.use_percent_num = storage.use_percent;\n    }\n    \n    return storage;\n  });\n}\n\n// Format CPU data\nif (result.resources.cpu) {\n  const cpu = result.resources.cpu;\n  cpu.used_percent = parseFloat(cpu.cpu_used_percent).toFixed(1);\n  cpu.idle_percent = parseFloat(cpu.cpu_idle_percent).toFixed(1);\n  cpu.cores = cpu.cpu_count;\n}\n\n// Build summary using template literals with ACTUAL line breaks\nlet summary = `**🖥️ Server Resources: \\`${currentIp}\\`**\n*Last checked: ${new Date().toLocaleString()}*\n`;\n\nif (result.resources.cpu) {\n  const cpu = result.resources.cpu;\n  const usedPercent = parseFloat(cpu.used_percent) || 0;\n  summary += `\n**💻 CPU**\n\\`\\`\\`\nCores:     ${safeValue(cpu.cores)}\nUsage:     ${safeValue(cpu.used_percent, '0')}%\nProgress:  ${createProgressBar(usedPercent)} ${safeValue(cpu.used_percent, '0')}%\n\\`\\`\\``;\n}\n\nif (result.resources.memory) {\n  const mem = result.resources.memory;\n  const usedPercent = parseFloat(mem.used_percent) || 0;\n  summary += `\n**🧠 Memory**\n\\`\\`\\`\nTotal:     ${mem.total_human}\nUsed:      ${mem.used_human} (${mem.used_percent}%)\nFree:      ${mem.free_human} (${mem.free_percent}%)\nAvailable: ${mem.available_human}\nProgress:  ${createProgressBar(usedPercent)} ${mem.used_percent}%\n\\`\\`\\``;\n}\n\n// Display all storage devices\nif (result.resources.storage_devices && result.resources.storage_devices.length > 0) {\n  summary += `\n**💾 Storage Devices (${result.resources.storage_devices.length})**`;\n  \n  result.resources.storage_devices.forEach((storage, index) => {\n    const usedPercent = storage.use_percent_num || 0;\n    const mountPoint = storage.mount || storage.mountpoint || 'N/A';\n    const deviceName = storage.device || `Device ${index + 1}`;\n    \n    summary += `\n\n*${deviceName}* → \\`${mountPoint}\\`\n\\`\\`\\`\nTotal:     ${safeValue(storage.total_human)}\nUsed:      ${safeValue(storage.used_human)} (${safeValue(storage.use_percent || storage.use_percent_num + '%')})\nAvailable: ${safeValue(storage.available_human)}\nProgress:  ${createProgressBar(usedPercent)} ${safeValue(storage.use_percent || storage.use_percent_num + '%')}\n\\`\\`\\``;\n  });\n}\n\nresult.summary = summary;\n\n// Determine color based on highest resource usage\nlet maxUsage = 0;\nif (result.resources.cpu) {\n  maxUsage = Math.max(maxUsage, parseFloat(result.resources.cpu.used_percent) || 0);\n}\nif (result.resources.memory) {\n  maxUsage = Math.max(maxUsage, parseFloat(result.resources.memory.used_percent) || 0);\n}\nif (result.resources.storage_devices) {\n  result.resources.storage_devices.forEach(s => {\n    maxUsage = Math.max(maxUsage, s.use_percent_num || 0);\n  });\n}\n\n// Return the properly formatted data\nreturn [{\n  json: {\n    embeds: [{\n      title: `🖥️ Server: ${currentIp}`,\n      description: summary,\n      color: maxUsage > 80 ? 15158332 : (maxUsage > 60 ? 16776960 : 3447003),\n      timestamp: new Date().toISOString(),\n      footer: {\n        text: \"Server Resource Monitor\"\n      }\n    }]\n  }\n}];"
+      },
+      "id": "1c28ef52-7533-4c20-b968-e828324854d3",
+      "name": "Aggregate Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        -368
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "17917b52-62b8-45b6-b5ff-ab26267c92fb",
+              "name": "=stdout_json",
+              "value": "={{ $json.stdout.parseJson() }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": true
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        -544
+      ],
+      "id": "8cb2bb28-ac9b-4a74-81ca-c52ab562e5e2",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "16Dbl57NmYoDcvhv4iEM-osDCn6at2FLpPK8ZbXuDza8",
+          "mode": "list",
+          "cachedResultName": "server_stats",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16Dbl57NmYoDcvhv4iEM-osDCn6at2FLpPK8ZbXuDza8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Nov2025",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16Dbl57NmYoDcvhv4iEM-osDCn6at2FLpPK8ZbXuDza8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "total_memory": "={{ $json.memory.total_gb }}",
+            "used_memory": "={{ $json.memory.used_gb }}",
+            "free_memory": "={{ $json.memory.free_gb }}",
+            "available_memory": "={{ $json.memory.available_gb }}",
+            "ip": "={{ $('Prepare Commands').all()[0].json.ip }}",
+            "device1": "={{ $json.storage[0].device }}",
+            "total_bytes_dev1": "={{ $json.storage[0].total_gb }}",
+            "mount_dev1": "={{ $json.storage[0].mount }}",
+            "used_bytes_dev1": "={{ $json.storage[0].used_gb }}",
+            "available_bytes_dev1": "={{ $json.storage[0].available_gb }}",
+            "storage_used_percent_dev1": "={{ $json.storage[0].use_percent }}",
+            "device2": "={{ $json.storage[1].device }}",
+            "mount_dev2": "={{ $json.storage[1].mount }}",
+            "total_bytes_dev2": "={{ $json.storage[1].total_gb }}",
+            "used_bytes_dev2": "={{ $json.storage[1].used_gb }}",
+            "available_bytes_dev2": "={{ $json.storage[1].available_gb }}",
+            "storage_used_percent_dev2": "={{ $json.storage[1].use_percent }}",
+            "cpu_count": "={{ $json.cpu.cpu_count }}",
+            "cpu_idle_percent": "={{ $json.cpu.cpu_idle_percent }}",
+            "cpu_used_percent": "={{ $json.cpu.cpu_used_percent }}"
+          },
+          "matchingColumns": [
+            "ip"
+          ],
+          "schema": [
+            {
+              "id": "ip",
+              "displayName": "ip",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "total_memory",
+              "displayName": "total_memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "used_memory",
+              "displayName": "used_memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "free_memory",
+              "displayName": "free_memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "available_memory",
+              "displayName": "available_memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "device1",
+              "displayName": "device1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "total_bytes_dev1",
+              "displayName": "total_bytes_dev1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "mount_dev1",
+              "displayName": "mount_dev1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "used_bytes_dev1",
+              "displayName": "used_bytes_dev1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "available_bytes_dev1",
+              "displayName": "available_bytes_dev1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "storage_used_percent_dev1",
+              "displayName": "storage_used_percent_dev1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "device2",
+              "displayName": "device2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "total_bytes_dev2",
+              "displayName": "total_bytes_dev2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "mount_dev2",
+              "displayName": "mount_dev2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "used_bytes_dev2",
+              "displayName": "used_bytes_dev2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "available_bytes_dev2",
+              "displayName": "available_bytes_dev2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "storage_used_percent_dev2",
+              "displayName": "storage_used_percent_dev2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cpu_count",
+              "displayName": "cpu_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cpu_idle_percent",
+              "displayName": "cpu_idle_percent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "cpu_used_percent",
+              "displayName": "cpu_used_percent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        976,
+        -544
+      ],
+      "id": "10e51ca0-ca5a-46c5-8ce7-e8ce2c53b4f0",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "C80Yu9L7FK1DLAi4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        608,
+        -544
+      ],
+      "id": "65b1f903-dd42-40a9-b78a-041151a2eaf4",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f6f2e22a-9870-497d-9f7d-f55359f599b9",
+              "leftValue": "={{ $('Prepare Commands').item.json.ip }}",
+              "rightValue": "=10.0.0.203",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        -400
+      ],
+      "id": "5c92b1e2-f169-4241-9230-ef00d81110d1",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items.map(item => {\n  // Helper functions\n  const mbToGB = (mb) => (mb / 1024).toFixed(2);\n  const bytesToGB = (bytes) => (bytes / 1073741824).toFixed(2);\n  \n  // Get the data array\n  const data = item.json.data;\n  \n  // Convert memory (first item)\n  const memoryData = {\n    ...data[0].stdout_json,\n    total_gb: mbToGB(data[0].stdout_json.total_mb),\n    used_gb: mbToGB(data[0].stdout_json.used_mb),\n    free_gb: mbToGB(data[0].stdout_json.free_mb),\n    available_gb: mbToGB(data[0].stdout_json.available_mb)\n  };\n  \n  // Convert storage (second item - array of devices)\n  const storageData = data[1].stdout_json.map(device => ({\n    ...device,\n    total_gb: bytesToGB(device.total_bytes),\n    used_gb: bytesToGB(device.used_bytes),\n    available_gb: bytesToGB(device.available_bytes)\n  }));\n  \n  // CPU data (no conversion needed)\n  const cpuData = data[2].stdout_json;\n  \n  return {\n    json: {\n      memory: memoryData,\n      storage: storageData,\n      cpu: cpuData\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        -544
+      ],
+      "id": "604189c0-5da9-4669-b8a2-502e0de610a9",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const allInputs = $input.all();\nconst hasError = allInputs.some(item => item.json.error);\n\nconst currentIp = $input.first().json.ip;\nconst errorItem = allInputs.find(item => item.json.error);\nreturn [{\n    json: {\n      embeds: [{\n        title: `❌ Server Error: ${currentIp}`,\n        description: `**⚠️ Failed to fetch server resources**\\n\\n\\`\\`\\`\\nLast checked: ${new Date().toLocaleString()}*`,\n        color: 15158332, // Red\n        timestamp: new Date().toISOString(),\n        footer: {\n          text: \"Server Resource Monitor - Error\"\n        }\n      }]\n    }\n  }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        -176
+      ],
+      "id": "f7fce1a6-5413-42a9-a41f-bed9e148d676",
+      "name": "Code in JavaScript1"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "ip": "10.0.0.203"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-11-03T17:05:46.840Z",
+      "createdAt": "2025-11-03T17:05:46.840Z",
+      "role": "workflow:owner",
+      "workflowId": "oC9YRhswroCQFN6G",
+      "projectId": "9tVnjhoqECLAKTN1"
+    }
+  ],
+  "staticData": null,
+  "tags": [
+    {
+      "updatedAt": "2025-11-06T03:15:41.126Z",
+      "createdAt": "2025-11-06T03:15:41.126Z",
+      "id": "cQxOj9haiMkOl6w1",
+      "name": "subplaybook"
+    },
+    {
+      "updatedAt": "2025-11-06T03:11:26.029Z",
+      "createdAt": "2025-11-06T03:11:26.029Z",
+      "id": "2Fe7Mr4Z10EcxIti",
+      "name": "monitoring"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-07T02:46:04.298Z",
+  "versionId": "17634b67-3490-41d9-9f33-c68058bc4ce9"
+}
