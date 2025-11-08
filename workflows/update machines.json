@@ -1,0 +1,268 @@
+{
+  "active": false,
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "setField",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "apt upgrade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "apt update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "apt update": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setField": {
+      "main": [
+        [
+          {
+            "node": "apt update on fail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "apt update on fail": {
+      "main": [
+        [
+          {
+            "node": "apt upgrade on fail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-03T13:29:26.310Z",
+  "id": "VCdlQdIQp6H4QPNg",
+  "isArchived": false,
+  "meta": null,
+  "name": "update machines",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "ip_address"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -496,
+        -160
+      ],
+      "id": "ec934609-ff6e-4634-8039-0aff622008b4",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3e2c44ee-b4da-4444-b995-b3abf8b44670",
+              "leftValue": "={{ $json.code }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -16,
+        -160
+      ],
+      "id": "08077170-227e-42e7-b561-55e2d96b6e29",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "authentication": "privateKey",
+        "command": "=sudo apt update",
+        "cwd": "/home/caboose"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        -160
+      ],
+      "id": "b88b6a66-e191-49e6-946f-70c1118dc1d3",
+      "name": "apt update",
+      "credentials": {
+        "sshPrivateKey": {
+          "id": "J8YoUQo9NZFhjoYx",
+          "name": "AptUpdatePassword"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "71073bc5-b2f1-4c42-9c4b-8ad90911d6d3",
+              "name": "userPass",
+              "value": "DR!87wi93fi!!*",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        160,
+        -368
+      ],
+      "id": "12e5d53c-55d0-4490-9d80-3a8b090159d9",
+      "name": "setField"
+    },
+    {
+      "parameters": {
+        "authentication": "privateKey",
+        "command": "=echo {{ $json.userPass }} | sudo -S apt update",
+        "cwd": "/home/caboose"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        304,
+        -368
+      ],
+      "id": "15a137cb-d220-4655-978d-8c61a0def365",
+      "name": "apt update on fail",
+      "credentials": {
+        "sshPrivateKey": {
+          "id": "J8YoUQo9NZFhjoYx",
+          "name": "AptUpdatePassword"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "privateKey",
+        "command": "=sudo apt upgrade -y",
+        "cwd": "/home/caboose"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -368
+      ],
+      "id": "71de7696-4315-460c-ad28-c440944ee214",
+      "name": "apt upgrade on fail",
+      "credentials": {
+        "sshPrivateKey": {
+          "id": "J8YoUQo9NZFhjoYx",
+          "name": "AptUpdatePassword"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "privateKey",
+        "command": "=sudo apt upgrade -y",
+        "cwd": "/home/caboose"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        464,
+        -144
+      ],
+      "id": "e0b8a1a4-53e0-44a9-bfb4-ab33c9397a60",
+      "name": "apt upgrade",
+      "credentials": {
+        "sshPrivateKey": {
+          "id": "J8YoUQo9NZFhjoYx",
+          "name": "AptUpdatePassword"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-11-03T13:29:26.310Z",
+      "createdAt": "2025-11-03T13:29:26.310Z",
+      "role": "workflow:owner",
+      "workflowId": "VCdlQdIQp6H4QPNg",
+      "projectId": "9tVnjhoqECLAKTN1"
+    }
+  ],
+  "staticData": null,
+  "tags": [
+    {
+      "updatedAt": "2025-11-06T03:15:41.126Z",
+      "createdAt": "2025-11-06T03:15:41.126Z",
+      "id": "cQxOj9haiMkOl6w1",
+      "name": "subplaybook"
+    },
+    {
+      "updatedAt": "2025-11-06T03:12:34.025Z",
+      "createdAt": "2025-11-06T03:12:34.025Z",
+      "id": "IwoPCDtQyVJy4UoS",
+      "name": "update"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-06T03:16:07.950Z",
+  "versionId": "a794cd89-a3d0-4209-bc93-757d5e81de56"
+}
