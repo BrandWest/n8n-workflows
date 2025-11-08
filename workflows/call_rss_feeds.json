@@ -1,0 +1,199 @@
+{
+  "active": false,
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "CallRssFeed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CallRssFeed": {
+      "main": [
+        [
+          {
+            "node": "Filter1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter1": {
+      "main": [
+        [
+          {
+            "node": "SetFields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-01T18:27:25.718Z",
+  "id": "8TfY9JrZw2v7vELw",
+  "isArchived": false,
+  "meta": null,
+  "name": "call_rss_feeds",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "name"
+            },
+            {
+              "name": "url"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1040,
+        -1952
+      ],
+      "id": "c9bb58ea-f30a-4920-b4b1-bea9aea676c9",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "97473ae7-5e10-4020-8cc6-ddd0726698e8",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "3a81f18c-eaab-4cee-90fc-a7e72cc4c4c2",
+              "name": "link",
+              "value": "={{ $json.link }}",
+              "type": "string"
+            },
+            {
+              "id": "654e467c-ca32-492a-9b59-7f0fce06e5cc",
+              "name": "content:encoded",
+              "value": "={{ $json[\"content:encoded\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "25d62ad2-24b4-4343-a0bb-f084d38a258a",
+              "name": "content",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            },
+            {
+              "id": "2e935e9f-5ab0-49f4-89b3-dbb433c3445e",
+              "name": "contentSnippet",
+              "value": "={{ $json.contentSnippet }}",
+              "type": "string"
+            },
+            {
+              "id": "60aee848-e665-4ff3-a7fb-40ff2c5e6dc0",
+              "name": "guid",
+              "value": "={{ $json.guid }}",
+              "type": "string"
+            },
+            {
+              "id": "6414736d-e186-4ea4-8f48-8d6d6d2b2a5e",
+              "name": "isoDate",
+              "value": "={{ $json.isoDate }}",
+              "type": "string"
+            },
+            {
+              "id": "75d1bbc4-aa95-4bab-8e9e-b533f510c9b8",
+              "name": "creator",
+              "value": "={{ $json.creator }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -352,
+        -1952
+      ],
+      "id": "ff430b9f-46bc-444b-9fa1-84f08e2a75cd",
+      "name": "SetFields"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -816,
+        -1952
+      ],
+      "name": "CallRssFeed",
+      "id": "9c631c86-6136-4ed7-a3c6-8cf9c7dd9e6d"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c14bbfd9-f36b-44ea-84c1-8f2146dd6831",
+              "leftValue": "={{ $json.isoDate }}",
+              "rightValue": "={{ $now.minus(1, 'day') }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "afterOrEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -592,
+        -1952
+      ],
+      "id": "02be8972-5387-459b-8911-f8124c52f978",
+      "name": "Filter1",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-11-01T18:27:25.718Z",
+      "createdAt": "2025-11-01T18:27:25.718Z",
+      "role": "workflow:owner",
+      "workflowId": "8TfY9JrZw2v7vELw",
+      "projectId": "9tVnjhoqECLAKTN1"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-06T03:18:58.130Z",
+  "versionId": "525c1855-8869-4015-97d0-8fe117c4fc28"
+}
