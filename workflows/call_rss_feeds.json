@@ -82,19 +82,19 @@
             {
               "id": "654e467c-ca32-492a-9b59-7f0fce06e5cc",
               "name": "content:encoded",
-              "value": "={{ $json[\"content:encoded\"] }}",
+              "value": "={{ $json[\"content:encoded\"].slice(0,200) }}",
               "type": "string"
             },
             {
               "id": "25d62ad2-24b4-4343-a0bb-f084d38a258a",
               "name": "content",
-              "value": "={{ $json.content }}",
+              "value": "={{ $json.content.slice(0,200) }}",
               "type": "string"
             },
             {
               "id": "2e935e9f-5ab0-49f4-89b3-dbb433c3445e",
               "name": "contentSnippet",
-              "value": "={{ $json.contentSnippet }}",
+              "value": "={{ $json.contentSnippet.slice(0,200) }}",
               "type": "string"
             },
             {
@@ -146,7 +146,7 @@
       "parameters": {
         "conditions": {
           "options": {
-            "caseSensitive": true,
+            "caseSensitive": false,
             "leftValue": "",
             "typeValidation": "strict",
             "version": 2
@@ -164,7 +164,9 @@
           ],
           "combinator": "and"
         },
-        "options": {}
+        "options": {
+          "ignoreCase": true
+        }
       },
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
@@ -178,7 +180,16 @@
       "onError": "continueRegularOutput"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "name": "The Hacker News",
+          "url": "https://feeds.feedburner.com/TheHackersNews?format=xml"
+        }
+      }
+    ]
+  },
   "settings": {
     "executionOrder": "v1"
   },
@@ -194,6 +205,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2025-11-08T04:01:56.318Z",
-  "versionId": "b2fc1611-490a-48d1-bbd4-a43058bd7dbf"
+  "updatedAt": "2025-11-09T01:33:01.921Z",
+  "versionId": "801dcc73-7031-4d8c-aadf-2d0cd4a9fe1c"
 }
