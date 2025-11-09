@@ -98,14 +98,20 @@
     },
     "Send a message": {
       "main": [
-        []
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Filter2": {
       "main": [
         [
           {
-            "node": "If",
+            "node": "Loop Over Items1",
             "type": "main",
             "index": 0
           }
@@ -146,6 +152,29 @@
         [
           {
             "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
             "type": "main",
             "index": 0
           }
@@ -204,7 +233,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "{ \"feeds\" :  [\n  {\n    \"url\": \"https://grahamcluley.com/feed/\",\n    \"name\": \"Graham Cluley\"\n  },\n  {\n    \"url\": \"https://krebsonsecurity.com/feed/\",\n    \"name\": \"Krebs on Security\"\n  },\n  {\n    \"url\": \"https://www.schneier.com/feed/atom/\",\n    \"name\": \"Schneier on Security\"\n  },\n  {\n    \"url\": \"https://securelist.com/feed/\",\n    \"name\": \"Securelist\"\n  },\n  {\n    \"url\": \"https://news.sophos.com/en-us/category/security-operations/feed/\",\n    \"name\": \"Security Operations – Sophos News\"\n  },\n  {\n    \"url\": \"https://feeds.feedburner.com/TheHackersNews?format=xml\",\n    \"name\": \"The Hacker News\"\n  },\n  {\n    \"url\": \"https://news.sophos.com/en-us/category/threat-research/feed/\",\n    \"name\": \"Threat Research – Sophos News\"\n  },\n  {\n    \"url\": \"https://www.troyhunt.com/rss/\",\n    \"name\": \"Troy Hunt\"\n  },\n  {\n    \"url\": \"https://feeds.feedburner.com/eset/blog\",\n    \"name\": \"WeLiveSecurity\"\n  },\n  {\n    \"url\": \"https://0dayfans.com/feed.rss\",\n    \"name\": \"0dayfans\"\n  }\n]\n}\n",
+        "jsonOutput": "{ \"feeds\" :  [\n  {\n    \"url\": \"https://krebsonsecurity.com/feed/\",\n    \"name\": \"Krebs on Security\"\n  },\n  {\n    \"url\": \"https://www.schneier.com/feed/atom/\",\n    \"name\": \"Schneier on Security\"\n  },\n  {\n    \"url\": \"https://securelist.com/feed/\",\n    \"name\": \"Securelist\"\n  },\n  {\n    \"url\": \"https://news.sophos.com/en-us/category/security-operations/feed/\",\n    \"name\": \"Security Operations – Sophos News\"\n  },\n  {\n    \"url\": \"https://feeds.feedburner.com/TheHackersNews?format=xml\",\n    \"name\": \"The Hacker News\"\n  },\n  {\n    \"url\": \"https://news.sophos.com/en-us/category/threat-research/feed/\",\n    \"name\": \"Threat Research – Sophos News\"\n  },\n  {\n    \"url\": \"https://www.troyhunt.com/rss/\",\n    \"name\": \"Troy Hunt\"\n  },\n  {\n    \"url\": \"https://feeds.feedburner.com/eset/blog\",\n    \"name\": \"WeLiveSecurity\"\n  },\n  {\n    \"url\": \"https://0dayfans.com/feed.rss\",\n    \"name\": \"0dayfans\"\n  }\n]\n}\n",
         "options": {}
       },
       "type": "n8n-nodes-base.set",
@@ -309,16 +338,26 @@
           "conditions": [
             {
               "id": "9418432f-8892-4bfe-b960-74552f34466b",
-              "leftValue": "={{ $('PreviousFeedItems').item.json.title }}",
-              "rightValue": "={{ $json.title }}",
+              "leftValue": "={{ !$('PreviousFeedItems').all().map(item => item.json.title).includes($json.title) }}",
+              "rightValue": "={{ $('PreviousFeedItems').all().map(item => item.json.title) }}",
               "operator": {
-                "type": "array",
-                "operation": "notContains",
-                "rightType": "any"
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "748f6cfc-8976-4036-aad8-4c2f7ea026b0",
+              "leftValue": "={{ $json.title }}",
+              "rightValue": "null",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
               }
             }
           ],
-          "combinator": "and"
+          "combinator": "or"
         },
         "options": {}
       },
@@ -330,7 +369,7 @@
       ],
       "id": "617e22d7-c765-4caa-9abf-053c16c40c29",
       "name": "Filter",
-      "alwaysOutputData": true,
+      "alwaysOutputData": false,
       "onError": "continueRegularOutput"
     },
     {
@@ -441,7 +480,9 @@
           "attemptToConvertTypes": false,
           "convertFieldsToString": false
         },
-        "options": {}
+        "options": {
+          "useAppend": true
+        }
       },
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
@@ -516,13 +557,15 @@
       "type": "n8n-nodes-base.discord",
       "typeVersion": 2,
       "position": [
-        1152,
-        -368
+        1120,
+        -304
       ],
       "id": "b9c72e57-718a-4d99-967a-904d402b9ef7",
       "name": "Send a message",
       "webhookId": "dadd9c13-45e4-488a-9bfa-efb2d81f3b75",
       "executeOnce": false,
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
       "credentials": {
         "discordOAuth2Api": {
           "id": "T6aDxtG3GOSh3bjy",
@@ -558,8 +601,8 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.2,
       "position": [
-        368,
-        -416
+        384,
+        -336
       ],
       "id": "e2ae00d1-8acd-4855-9c75-c945e901e2f5",
       "name": "Filter2"
@@ -591,8 +634,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        576,
-        -416
+        784,
+        -320
       ],
       "id": "d998ca3c-af86-4989-aa1a-20b6f341b242",
       "name": "If"
@@ -638,8 +681,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        912,
-        -480
+        960,
+        -400
       ],
       "id": "e4831515-b33a-4381-8b90-fba004394ab7",
       "name": "Edit Fields"
@@ -662,6 +705,32 @@
       ],
       "id": "a15c15b2-fc5a-4633-8e59-4d43c75ae5f1",
       "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        560,
+        -336
+      ],
+      "id": "9ece1014-c326-463b-aeaa-6e8258ddd468",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1296,
+        -304
+      ],
+      "id": "cba2141f-1a5c-491a-981f-b1723ed2d85c",
+      "name": "Wait",
+      "webhookId": "70d0d3e8-905a-46df-9e15-2a9cb8bde393"
     }
   ],
   "pinData": {},
@@ -697,6 +766,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-11-08T04:02:13.920Z",
-  "versionId": "e9c4854f-f421-4f29-bacf-ea0958826069"
+  "updatedAt": "2025-11-09T01:33:40.509Z",
+  "versionId": "b2437d54-4b6b-483c-87d4-7d5309f09a91"
 }
