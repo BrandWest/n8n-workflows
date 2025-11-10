@@ -671,6 +671,7 @@
       "id": "5528ff7a-ac69-45b9-b7c8-4f7acd4dd602",
       "name": "DiscordCompleted",
       "webhookId": "ff55bc3a-f520-40a5-97e3-546adfd503e6",
+      "executeOnce": true,
       "credentials": {
         "discordWebhookApi": {
           "id": "DCmJNHLvHmOeAESq",
@@ -702,6 +703,6 @@
   },
   "tags": [],
   "triggerCount": 1,
-  "updatedAt": "2025-11-08T02:58:21.807Z",
-  "versionId": "5118d7ab-e5f0-48d8-b757-81999a204152"
+  "updatedAt": "2025-11-09T05:10:33.143Z",
+  "versionId": "2eee382d-95c2-494c-a4ba-d1ec2a1fd478"
 }
