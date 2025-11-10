@@ -39,18 +39,7 @@
       "main": [
         [
           {
-            "node": "Aggregate Results",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Aggregate Results": {
-      "main": [
-        [
-          {
-            "node": "LoopOverItems",
+            "node": "UpdateAggregate",
             "type": "main",
             "index": 0
           }
@@ -62,6 +51,17 @@
         [
           {
             "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UpdateAggregate": {
+      "main": [
+        [
+          {
+            "node": "LoopOverItems",
             "type": "main",
             "index": 0
           }
@@ -169,20 +169,8 @@
         48
       ],
       "id": "c02e18c9-a803-4fcc-9b6f-eadfec9e4379",
-      "name": "Call 'My workflow 2'"
-    },
-    {
-      "parameters": {
-        "jsCode": "// Helper function to convert MB to human readable\nfunction formatBytes(mb) {\n  if (!mb || isNaN(mb)) return 'N/A';\n  if (mb >= 1024) {\n    return (mb / 1024).toFixed(2) + ' GB';\n  }\n  return mb + ' MB';\n}\n\n// Helper function to create progress bar\nfunction createProgressBar(percent, length = 10) {\n  if (!percent || isNaN(percent)) return '░'.repeat(length);\n  const filled = Math.round((percent / 100) * length);\n  const empty = length - filled;\n  return '█'.repeat(filled) + '░'.repeat(empty);\n}\n\n// Helper function to safely get value\nfunction safeValue(val, defaultVal = 'N/A') {\n  return (val !== undefined && val !== null) ? val : defaultVal;\n}\n\n// Get the current IP\nconst currentIp = $('Prepare Commands1').first().json.ip\n\n// Collect all command results for this IP\nconst result = {\n  ip: currentIp,\n  timestamp: new Date().toISOString(),\n  resources: {},\n  summary: '',\n  discord_embed: {}\n};\n\n// Process each command result\nfor (const item of $input.all()) {\n  console.log('Processing item:', JSON.stringify(item.json, null, 2));\n  \n  // Try to get command name from different possible properties\n  const commandName = item.json.command_name || item.json.command || item.json.type || item.json.resource_type;\n  \n  console.log('Command name:', commandName);\n  \n  // Check if data is in stdout or directly in json\n  let parsedData;\n  if (item.json.stdout) {\n    try {\n      parsedData = JSON.parse(item.json.stdout);\n    } catch (error) {\n      parsedData = {\n        error: 'Failed to parse output',\n        raw_output: item.json.stdout\n      };\n    }\n  } else {\n    // Data might be directly in the json object\n    parsedData = item.json;\n  }\n  \n  // Detect resource type from data structure if command_name is missing\n  let detectedType = commandName;\n  if (!detectedType) {\n    if (parsedData.cpu_count !== undefined) detectedType = 'cpu';\n    else if (parsedData.total_mb !== undefined) detectedType = 'memory';\n    else if (parsedData.total_gb !== undefined) detectedType = 'storage';\n  }\n  \n  console.log('Detected type:', detectedType);\n  \n  if (detectedType) {\n    result.resources[detectedType] = parsedData;\n  }\n}\n\nconsole.log('Final resources:', JSON.stringify(result.resources, null, 2));\n\n// Format memory data\nif (result.resources.memory && result.resources.memory.total_mb) {\n  const mem = result.resources.memory;\n  mem.free_percent = ((mem.free_mb / mem.total_mb) * 100).toFixed(1);\n  mem.available_percent = ((mem.available_mb / mem.total_mb) * 100).toFixed(1);\n  mem.used_percent = (100 - parseFloat(mem.free_percent)).toFixed(1);\n  \n  mem.total_human = formatBytes(mem.total_mb);\n  mem.used_human = formatBytes(mem.used_mb);\n  mem.free_human = formatBytes(mem.free_mb);\n  mem.available_human = formatBytes(mem.available_mb);\n}\n\n// Format storage data\nif (result.resources.storage) {\n  const storage = result.resources.storage;\n  storage.use_percent_num = parseFloat(storage.use_percent);\n}\n\n// Format CPU data\nif (result.resources.cpu) {\n  const cpu = result.resources.cpu;\n  cpu.used_percent = parseFloat(cpu.cpu_used_percent).toFixed(1);\n  cpu.idle_percent = parseFloat(cpu.cpu_idle_percent).toFixed(1);\n  cpu.cores = cpu.cpu_count;\n}\n\n// Create Discord-formatted summary\nconst tick3 = '```';\nlet summary = '';\nsummary += `**🖥️ Server Resources: \\`${currentIp}\\`**\\n`;\nsummary += `*Last checked: ${new Date().toLocaleString()}*\\n\\n`;\n\nif (result.resources.cpu) {\n  const cpu = result.resources.cpu;\n  const usedPercent = parseFloat(cpu.used_percent) || 0;\n  summary += `**💻 CPU**\\n`;\n  summary += tick3 + '\\n';\n  summary += `Cores:     ${safeValue(cpu.cores)}\\n`;\n  summary += `Usage:     ${safeValue(cpu.used_percent, '0')}%\\n`;\n  summary += `Progress:  ${createProgressBar(usedPercent)} ${safeValue(cpu.used_percent, '0')}%\\n`;\n  summary += tick3 + '\\n';\n}\n\nif (result.resources.memory) {\n  const mem = result.resources.memory;\n  const usedPercent = parseFloat(mem.used_percent) || 0;\n  summary += `**🧠 Memory**\\n`;\n  summary += tick3 + '\\n';\n  summary += `Total:     ${mem.total_human}\\n`;\n  summary += `Used:      ${mem.used_human} (${mem.used_percent}%)\\n`;\n  summary += `Free:      ${mem.free_human} (${mem.free_percent}%)\\n`;\n  summary += `Available: ${mem.available_human}\\n`;\n  summary += `Progress:  ${createProgressBar(usedPercent)} ${mem.used_percent}%\\n`;\n  summary += tick3 + '\\n';\n}\n\nif (result.resources.storage) {\n  const storage = result.resources.storage;\n  const usedPercent = storage.use_percent_num || 0;\n  summary += `**💾 Storage (Root)**\\n`;\n  summary += tick3 + '\\n';\n  summary += `Total:     ${safeValue(storage.total_gb)}\\n`;\n  summary += `Used:      ${safeValue(storage.used_gb)} (${safeValue(storage.use_percent)})\\n`;\n  summary += `Available: ${safeValue(storage.available_gb)}\\n`;\n  summary += `Progress:  ${createProgressBar(usedPercent)} ${safeValue(storage.use_percent)}\\n`;\n  summary += tick3 + '\\n';\n}\n\nresult.summary = summary;\n\nresult.discord_embed = {\n  embeds: [{\n    title: `🖥️ Server: ${currentIp}`,\n    description: summary,\n    color: result.resources.cpu && parseFloat(result.resources.cpu.used_percent) > 80 ? 15158332 : 3447003,\n    timestamp: new Date().toISOString(),\n    footer: {\n      text: \"Server Resource Monitor\"\n    }\n  }]\n};\n\nreturn [{ json: result }];"
-      },
-      "id": "1be0dfd5-72a1-4a64-9d70-b777230e1104",
-      "name": "Aggregate Results",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1440,
-        48
-      ]
+      "name": "Call 'My workflow 2'",
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -202,11 +190,40 @@
       ],
       "id": "290b5345-0bd7-49b7-9fd2-1f548115d58b",
       "name": "Trigger 1/Week/Sun"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Helper function to get status emoji and color\n  function getStatusIndicators(success) {\n    if (success) {\n      return {\n        emoji: '✅',\n        color: 3066993, // Green\n        status: 'SUCCESS'\n      };\n    } else {\n      return {\n        emoji: '❌',\n        color: 15158332, // Red\n        status: 'FAILED'\n      };\n    }\n  }\n\n  // Helper function to format duration\n  function formatDuration(seconds) {\n    if (!seconds || isNaN(seconds)) return 'N/A';\n    if (seconds < 60) return `${seconds}s`;\n    const minutes = Math.floor(seconds / 60);\n    const remainingSeconds = seconds % 60;\n    return `${minutes}m ${remainingSeconds}s`;\n  }\n\n  // Helper function to safely get value\n  function safeValue(val, defaultVal = 'N/A') {\n    return (val !== undefined && val !== null && val !== '') ? val : defaultVal;\n  }\n\n  // Get deployment data from the workflow\n  // Adjust these based on your actual n8n workflow data structure\n  const deploymentData = $input.first().json;\n\n  const result = {\n    timestamp: new Date().toISOString(),\n    deployment: {},\n    discord_embed: {}\n  };\n\n  // Extract deployment information\n  // Modify these field names based on your actual ArgoCD/deployment webhook/API response\n  result.deployment = {\n    app_name: safeValue(deploymentData.app_name || deploymentData.application),\n    namespace: safeValue(deploymentData.namespace || 'n8n'),\n    success: deploymentData.success === true || deploymentData.status === 'Healthy' || deploymentData.sync_status === 'Synced',\n    revision: safeValue(deploymentData.revision || deploymentData.git_commit),\n    sync_status: safeValue(deploymentData.sync_status),\n    health_status: safeValue(deploymentData.health_status),\n    duration: safeValue(deploymentData.duration),\n    message: safeValue(deploymentData.message || deploymentData.error),\n    resources_updated: deploymentData.resources_updated || [],\n    initiated_by: safeValue(deploymentData.initiated_by || deploymentData.user),\n    environment: safeValue(deploymentData.environment || 'production')\n  };\n\n  // Get status indicators\n  const indicators = getStatusIndicators(result.deployment.success);\n\n  // Create Discord-formatted summary\n  const tick3 = '```';\n  let summary = '';\n\n  // Status header\n  summary += `${indicators.emoji} **Deployment ${indicators.status}**\\n\\n`;\n\n  // Application info\n  summary += `**📦 Application Details**\\n`;\n  summary += tick3 + '\\n';\n  summary += `Name:        ${result.deployment.app_name}\\n`;\n  summary += `Namespace:   ${result.deployment.namespace}\\n`;\n  summary += `Environment: ${result.deployment.environment}\\n`;\n  summary += tick3 + '\\n';\n\n  // Sync information\n  summary += `**🔄 Sync Information**\\n`;\n  summary += tick3 + '\\n';\n  summary += `Status:      ${result.deployment.sync_status}\\n`;\n  summary += `Health:      ${result.deployment.health_status}\\n`;\n  summary += `Revision:    ${result.deployment.revision}\\n`;\n  if (result.deployment.duration) {\n    summary += `Duration:    ${formatDuration(result.deployment.duration)}\\n`;\n  }\n  summary += tick3 + '\\n';\n\n  // Resources updated (if available)\n  if (result.deployment.resources_updated && result.deployment.resources_updated.length > 0) {\n    summary += `**📝 Resources Updated**\\n`;\n    summary += tick3 + '\\n';\n    result.deployment.resources_updated.forEach(resource => {\n      summary += `• ${resource}\\n`;\n    });\n    summary += tick3 + '\\n';\n  }\n\n  // Message or error details\n  if (result.deployment.message && result.deployment.message !== 'N/A') {\n    const messageTitle = result.deployment.success ? '**📋 Message**' : '**⚠️ Error Details**';\n    summary += `${messageTitle}\\n`;\n    summary += tick3 + '\\n';\n    summary += `${result.deployment.message}\\n`;\n    summary += tick3 + '\\n';\n  }\n\n  // Initiated by\n  if (result.deployment.initiated_by && result.deployment.initiated_by !== 'N/A') {\n    summary += `*Initiated by: ${result.deployment.initiated_by}*\\n`;\n  }\n\n  result.summary = summary;\n\n  // Create Discord embed\n  result.discord_embed = {\n    embeds: [{\n      title: `${indicators.emoji} ${result.deployment.app_name} - ${indicators.status}`,\n      description: summary,\n      color: indicators.color,\n      timestamp: new Date().toISOString(),\n      footer: {\n        text: `ArgoCD Deployment Monitor • ${result.deployment.environment}`\n      },\n      fields: [\n        {\n          name: '📦 Application',\n          value: result.deployment.app_name,\n          inline: true\n        },\n        {\n          name: '🏷️ Namespace',\n          value: result.deployment.namespace,\n          inline: true\n        },\n        {\n          name: '🔄 Status',\n          value: `${result.deployment.sync_status} / ${result.deployment.health_status}`,\n          inline: true\n        }\n      ]\n    }]\n  };\n\nreturn [{ json: result }];"
+      },
+      "id": "cdf6d53f-0c0f-4694-8dec-1faf3e1c9c38",
+      "name": "ArgocdNotification1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        -176
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Helper function to get status emoji and color\nfunction getStatusIndicators(hasUpdates, hasCritical = false) {\n  if (hasCritical) {\n    return {\n      emoji: '🔴',\n      color: 15158332, // Red\n      status: 'CRITICAL UPDATES'\n    };\n  } else if (hasUpdates) {\n    return {\n      emoji: '🟡',\n      color: 16776960, // Yellow\n      status: 'UPDATES AVAILABLE'\n    };\n  } else {\n    return {\n      emoji: '✅',\n      color: 3066993, // Green\n      status: 'UP TO DATE'\n    };\n  }\n}\n\n// Helper function to format date\nfunction formatDate(dateStr) {\n  if (!dateStr) return 'N/A';\n  try {\n    return new Date(dateStr).toLocaleString();\n  } catch {\n    return dateStr;\n  }\n}\n\n// Helper function to safely get value\nfunction safeValue(val, defaultVal = 'N/A') {\n  return (val !== undefined && val !== null && val !== '') ? val : defaultVal;\n}\n\n// Get the current IP\nconst currentIp = $('LoopOverItems').first().json.ips\n\n// Collect all update information for this IP\nconst result = {\n  ip: currentIp,\n  timestamp: new Date().toISOString(),\n  updates: {\n    packages: [],\n    services: [],\n    security: [],\n    kernel: null,\n    system_info: {}\n  },\n  stats: {\n    total_updates: 0,\n    security_updates: 0,\n    service_restarts: 0,\n    last_update: null\n  },\n  summary: '',\n  discord_embed: {}\n};\n\n// Process each command result\nfor (const item of $input.all()) {\n  console.log('Processing item:', JSON.stringify(item.json, null, 2));\n  \n  // Try to get command/update type from different possible properties\n  const updateType = item.json.update_type || item.json.command_name || item.json.type;\n  \n  console.log('Update type:', updateType);\n  \n  // Check if data is in stdout or directly in json\n  let parsedData;\n  if (item.json.stdout) {\n    try {\n      parsedData = JSON.parse(item.json.stdout);\n    } catch (error) {\n      parsedData = {\n        error: 'Failed to parse output',\n        raw_output: item.json.stdout\n      };\n    }\n  } else {\n    // Data might be directly in the json object\n    parsedData = item.json;\n  }\n  \n  // Detect update type from data structure if not specified\n  let detectedType = updateType;\n  if (!detectedType) {\n    if (parsedData.packages !== undefined) detectedType = 'packages';\n    else if (parsedData.services !== undefined) detectedType = 'services';\n    else if (parsedData.security_patches !== undefined) detectedType = 'security';\n    else if (parsedData.kernel_version !== undefined) detectedType = 'kernel';\n    else if (parsedData.os_version !== undefined) detectedType = 'system_info';\n  }\n  \n  console.log('Detected type:', detectedType);\n  \n  // Store the data based on type\n  switch(detectedType) {\n    case 'packages':\n      result.updates.packages = parsedData.packages || parsedData.updated_packages || [];\n      break;\n    case 'services':\n      result.updates.services = parsedData.services || parsedData.restarted_services || [];\n      break;\n    case 'security':\n      result.updates.security = parsedData.security_patches || parsedData.patches || [];\n      break;\n    case 'kernel':\n      result.updates.kernel = parsedData;\n      break;\n    case 'system_info':\n      result.updates.system_info = parsedData;\n      break;\n  }\n}\n\nconsole.log('Final updates:', JSON.stringify(result.updates, null, 2));\n\n// Calculate statistics\nresult.stats.total_updates = (result.updates.packages?.length || 0) + \n                              (result.updates.services?.length || 0);\nresult.stats.security_updates = result.updates.security?.length || 0;\nresult.stats.service_restarts = result.updates.services?.filter(s => s.restarted)?.length || 0;\nresult.stats.last_update = result.updates.system_info?.last_update || \n                          result.updates.packages?.[0]?.updated_at || null;\n\n// Determine status\nconst hasUpdates = result.stats.total_updates > 0;\nconst hasCritical = result.stats.security_updates > 0;\nconst indicators = getStatusIndicators(hasUpdates, hasCritical);\n\n// Create Discord-formatted summary\nconst tick3 = '```';\nlet summary = '';\nsummary += `${indicators.emoji} **Server Updates: \\`${currentIp}\\`**\\n`;\nsummary += `*Status: ${indicators.status}*\\n`;\nsummary += `*Last checked: ${new Date().toLocaleString()}*\\n\\n`;\n\n// System Information\nif (result.updates.system_info && Object.keys(result.updates.system_info).length > 0) {\n  const sys = result.updates.system_info;\n  summary += `**ℹ️ System Information**\\n`;\n  summary += tick3 + '\\n';\n  if (sys.os_version) summary += `OS:            ${safeValue(sys.os_version)}\\n`;\n  if (sys.kernel_version) summary += `Kernel:        ${safeValue(sys.kernel_version)}\\n`;\n  if (sys.last_update) summary += `Last Update:   ${formatDate(sys.last_update)}\\n`;\n  if (sys.uptime) summary += `Uptime:        ${safeValue(sys.uptime)}\\n`;\n  summary += tick3 + '\\n';\n}\n\n// Package Updates\nif (result.updates.packages && result.updates.packages.length > 0) {\n  summary += `**📦 Package Updates (${result.updates.packages.length})**\\n`;\n  summary += tick3 + '\\n';\n  const displayLimit = 10;\n  const packages = result.updates.packages.slice(0, displayLimit);\n  \n  packages.forEach(pkg => {\n    const name = pkg.name || pkg.package || pkg;\n    const oldVer = pkg.old_version ? ` ${pkg.old_version}` : '';\n    const newVer = pkg.new_version ? ` → ${pkg.new_version}` : '';\n    summary += `• ${name}${oldVer}${newVer}\\n`;\n  });\n  \n  if (result.updates.packages.length > displayLimit) {\n    summary += `... and ${result.updates.packages.length - displayLimit} more\\n`;\n  }\n  summary += tick3 + '\\n';\n}\n\n// Security Updates\nif (result.updates.security && result.updates.security.length > 0) {\n  summary += `**🔒 Security Updates (${result.updates.security.length})**\\n`;\n  summary += tick3 + '\\n';\n  result.updates.security.slice(0, 5).forEach(patch => {\n    const id = patch.id || patch.cve || patch.name || patch;\n    const severity = patch.severity ? ` [${patch.severity.toUpperCase()}]` : '';\n    summary += `• ${id}${severity}\\n`;\n  });\n  if (result.updates.security.length > 5) {\n    summary += `... and ${result.updates.security.length - 5} more\\n`;\n  }\n  summary += tick3 + '\\n';\n}\n\n// Service Updates/Restarts\nif (result.updates.services && result.updates.services.length > 0) {\n  summary += `**🔄 Services Updated (${result.updates.services.length})**\\n`;\n  summary += tick3 + '\\n';\n  result.updates.services.forEach(svc => {\n    const name = svc.name || svc.service || svc;\n    const status = svc.status || svc.state || '';\n    const restarted = svc.restarted ? ' ↻ restarted' : '';\n    summary += `• ${name} ${status}${restarted}\\n`;\n  });\n  summary += tick3 + '\\n';\n}\n\n// Kernel Update\nif (result.updates.kernel && result.updates.kernel.updated) {\n  summary += `**⚡ Kernel Update**\\n`;\n  summary += tick3 + '\\n';\n  summary += `Old: ${safeValue(result.updates.kernel.old_version)}\\n`;\n  summary += `New: ${safeValue(result.updates.kernel.new_version)}\\n`;\n  if (result.updates.kernel.reboot_required) {\n    summary += `⚠️  REBOOT REQUIRED\\n`;\n  }\n  summary += tick3 + '\\n';\n}\n\n// Summary Stats\nif (result.stats.total_updates > 0) {\n  summary += `**📊 Summary**\\n`;\n  summary += tick3 + '\\n';\n  summary += `Total Updates:      ${result.stats.total_updates}\\n`;\n  if (result.stats.security_updates > 0) {\n    summary += `Security Patches:   ${result.stats.security_updates}\\n`;\n  }\n  if (result.stats.service_restarts > 0) {\n    summary += `Services Restarted: ${result.stats.service_restarts}\\n`;\n  }\n  summary += tick3 + '\\n';\n}\n\nresult.summary = summary;\n\n// Create Discord embed\nresult.discord_embed = {\n  embeds: [{\n    title: `${indicators.emoji} ${currentIp} - ${indicators.status}`,\n    description: summary,\n    color: indicators.color,\n    timestamp: new Date().toISOString(),\n    footer: {\n      text: \"Server Update Monitor\"\n    },\n    fields: [\n      {\n        name: '📦 Packages',\n        value: result.updates.packages?.length > 0 ? `${result.updates.packages.length} updated` : 'None',\n        inline: true\n      },\n      {\n        name: '🔒 Security',\n        value: result.stats.security_updates > 0 ? `${result.stats.security_updates} patches` : 'None',\n        inline: true\n      },\n      {\n        name: '🔄 Services',\n        value: result.updates.services?.length > 0 ? `${result.updates.services.length} affected` : 'None',\n        inline: true\n      }\n    ]\n  }]\n};\n\nreturn [{ json: result }];"
+      },
+      "id": "1be0dfd5-72a1-4a64-9d70-b777230e1104",
+      "name": "UpdateAggregate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        48
+      ]
     }
   ],
   "pinData": {},
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
   },
   "shared": [
     {
@@ -237,6 +254,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-11-06T03:15:02.552Z",
-  "versionId": "ea28690c-7aeb-4a53-8ad3-7e1b706bc083"
+  "updatedAt": "2025-11-09T05:22:38.718Z",
+  "versionId": "86eb0550-a360-4d84-81af-5d710aea8f6f"
 }
