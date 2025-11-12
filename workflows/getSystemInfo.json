@@ -1,0 +1,148 @@
+{
+  "active": false,
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "setVars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setVars": {
+      "main": [
+        [
+          {
+            "node": "sshCommand",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sshCommand": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "createdAt": "2025-11-12T01:46:55.770Z",
+  "id": "MzOnbuo6q1itFwwP",
+  "isArchived": false,
+  "meta": null,
+  "name": "getSystemInfo",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "ipAddress"
+            }
+          ]
+        }
+      },
+      "id": "8a58cf39-23ee-4e45-a3c2-0e289c5cac97",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        288,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9176b846-6a09-4327-a81b-ae341a72b74c",
+              "name": "ipAddress",
+              "value": "={{ $json.ipAddress }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        -48
+      ],
+      "id": "3e964eef-1366-48b6-a98e-b83406ec71b5",
+      "name": "setVars"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"os\": \"{{ $json.stdout.split(' ')[0] }}\",\n  \"arch\": \"{{ $json.stdout.split(' ')[1] }}\"\n}\n ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        944,
+        -48
+      ],
+      "id": "7b086362-8cd5-41f9-80fb-17b8346ed5ac",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "authentication": "privateKey",
+        "command": "uname -ms"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        736,
+        -48
+      ],
+      "id": "b86af967-701a-4fd9-8868-602da2855391",
+      "name": "sshCommand",
+      "credentials": {
+        "sshPrivateKey": {
+          "id": "feCUoPhmCcaW7IT9",
+          "name": "sshToIP"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Start": [
+      {
+        "json": {
+          "ipAddress": "10.0.0.205"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "shared": [
+    {
+      "updatedAt": "2025-11-12T01:46:55.770Z",
+      "createdAt": "2025-11-12T01:46:55.770Z",
+      "role": "workflow:owner",
+      "workflowId": "MzOnbuo6q1itFwwP",
+      "projectId": "9tVnjhoqECLAKTN1"
+    }
+  ],
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-12T02:01:41.400Z",
+  "versionId": "89d0d630-f3c7-4c4c-94f1-066169518b5e"
+}
