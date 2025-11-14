@@ -1,12 +1,179 @@
 {
   "active": false,
-  "connections": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "setVars",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setVars": {
+      "main": [
+        [
+          {
+            "node": "getRequest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setToken": {
+      "main": [
+        [
+          {
+            "node": "Call getSystemInfo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getRequest": {
+      "main": [
+        [
+          {
+            "node": "setToken",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
   "createdAt": "2025-11-06T03:31:29.051Z",
   "id": "vbUe7XqtQgZugSGc",
   "isArchived": false,
-  "meta": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
   "name": "InstallWazuhAgent",
-  "nodes": [],
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        -48
+      ],
+      "id": "f39d8e26-613f-4a18-9e5e-826fc4d4392b",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "af4b3d25-dcc4-469b-886d-19b5d8346b2f",
+              "name": "api_url",
+              "value": "https://wazuh.wazuh.svc.cluster.local:55000",
+              "type": "string"
+            },
+            {
+              "id": "32572bad-0136-4240-b485-79f4eaa14fdc",
+              "name": "endpoint",
+              "value": "/security/user/authenticate",
+              "type": "string"
+            },
+            {
+              "id": "b7f5a265-e8cc-495f-a342-c88f393c394a",
+              "name": "={\n  \"commands\": [\n    {\"Linux aarch64\" : \"wget https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/wazuh-agent_4.14.0-1_arm64.deb && sudo WAZUH_MANAGER='wazuh.diagon.ally' WAZUH_REGISTRATION_PASSWORD={{  }} dpkg -i ./wazuh-agent_4.14.0-1_arm64.deb\" },\n    {\"Linux amd64\" : \"wget https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/wazuh-agent_4.14.0-1_amd64.deb && sudo WAZUH_MANAGER='wazuh.diagon.ally' WAZUH_REGISTRATION_PASSWORD={{  }} dpkg -i ./wazuh-agent_4.14.0-1_amd64.deb\" },\n    {\"Windows\" : \"Invoke-WebRequest -Uri https://packages.wazuh.com/4.x/windows/wazuh-agent-4.14.0-1.msi -OutFile $env:tmp\\wazuh-agent; msiexec.exe /i $env:tmp\\wazuh-agent /q WAZUH_MANAGER='wazuh.diagon.ally' WAZUH_REGISTRATION_PASSWORD={{ }}\" },\n    {\"\" : \"\" },\n    {\"\" : \"\" },\n    {\"\" : \"\" },\n    {\"\" : \"\" },\n  ]\n}",
+              "value": "=",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        -48
+      ],
+      "id": "f8eb09f9-af47-4693-968e-bff20fb996e6",
+      "name": "setVars"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "MzOnbuo6q1itFwwP",
+          "mode": "list"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        304,
+        -48
+      ],
+      "name": "Call getSystemInfo",
+      "id": "599401a1-11d4-47b2-ab88-7416cb645e83"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "57804588-6981-4f46-801e-eb66f2f2d46c",
+              "name": "bearerToken",
+              "value": "=Bearer {{ $json.data.token }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        96,
+        -48
+      ],
+      "id": "a90d1fc3-0245-496c-a16c-5bc0d6da4215",
+      "name": "setToken"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.api_url }}{{ $json.endpoint }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -112,
+        -48
+      ],
+      "id": "7f9f54e9-cd4e-4177-b544-9298f1b552f6",
+      "name": "getRequest",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "ItKXmnG3bO7qzk1p",
+          "name": "n8n-wazuh"
+        }
+      }
+    }
+  ],
   "pinData": {},
   "settings": {
     "executionOrder": "v1"
@@ -23,6 +190,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2025-11-06T03:31:29.051Z",
-  "versionId": "18bd9036-9635-40e8-9ba5-93c280a0c74d"
+  "updatedAt": "2025-11-14T00:57:03.572Z",
+  "versionId": "2e29a4be-8e95-4c10-81af-3ac8345b4657"
 }
