@@ -87,7 +87,7 @@
       "main": [
         [
           {
-            "node": "loopOverSystems",
+            "node": "setSystemReq",
             "type": "main",
             "index": 0
           }
@@ -138,6 +138,28 @@
           }
         ]
       ]
+    },
+    "setSystemReq": {
+      "main": [
+        [
+          {
+            "node": "Execute a command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a command": {
+      "main": [
+        [
+          {
+            "node": "loopOverSystems",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "createdAt": "2025-11-06T03:31:29.051Z",
@@ -170,7 +192,9 @@
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
-          "value": {},
+          "value": {
+            "ipAddress": "={{ $json.systems }}"
+          },
           "matchingColumns": [
             "ipAddress"
           ],
@@ -194,8 +218,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        672,
-        -480
+        368,
+        -496
       ],
       "name": "Call getSystemInfo",
       "id": "599401a1-11d4-47b2-ab88-7416cb645e83"
@@ -275,7 +299,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Get the password from the previous node\nconst password = $('Call \\'ExternalSecretsVault\\'').item.json.authd_password;\n\n// Define common values\nconst manager = 'wazuh.diagon.ally';\nconst version = '4.14.0-1';\n\n// Helper function to escape for shell\nfunction escapeShell(str) {\n  return str.replace(/'/g, \"'\\\\''\");\n}\n\n// Build commands object\nconst commands = {\n  \"Linux aarch64\": `wget https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/wazuh-agent_${version}_arm64.deb && sudo WAZUH_MANAGER='${manager}' WAZUH_REGISTRATION_PASSWORD='${escapeShell(password)}' dpkg -i ./wazuh-agent_${version}_arm64.deb`,\n  \n  \"Linux amd64\": `wget https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/wazuh-agent_${version}_amd64.deb && sudo WAZUH_MANAGER='${manager}' WAZUH_REGISTRATION_PASSWORD='${escapeShell(password)}' dpkg -i ./wazuh-agent_${version}_amd64.deb`,\n  \n  \"Windows\": `Invoke-WebRequest -Uri https://packages.wazuh.com/4.x/windows/wazuh-agent-${version}.msi -OutFile $env:tmp\\\\wazuh-agent; msiexec.exe /i $env:tmp\\\\wazuh-agent /q WAZUH_MANAGER='${manager}' WAZUH_REGISTRATION_PASSWORD='${password}'`\n};\n\n// Return as array of objects (your original format)\nconst output = {\n  commands: Object.entries(commands).map(([key, value]) => ({[key]: value}))\n};\n\n// Validate it's proper JSON\nJSON.parse(JSON.stringify(output));\n\nreturn [{ json: output }];"
+        "jsCode": "// Get the password from the previous node\nconst password = $('Call \\'ExternalSecretsVault\\'').item.json.authd_password;\n\n// Define common values\nconst manager = 'wazuh.diagon.ally';\nconst version = '4.14.0-1';\n\n// Helper function to escape for shell\nfunction escapeShell(str) {\n  return str.replace(/'/g, \"'\\\\''\");\n}\n\n// Build commands object\nconst commands = {\n  \"Linux aarch64\": `wget https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/wazuh-agent_${version}_arm64.deb && sudo WAZUH_MANAGER='${manager}' WAZUH_REGISTRATION_PASSWORD='${escapeShell(password)}' WAZUH_AGENT_GROUP='REPLACE_GROUP' WAZUH_AGENT_NAME='REPLACE_NAME' dpkg -i ./wazuh-agent_${version}_arm64.deb`,\n  \n  \"Linux amd64\": `wget https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/wazuh-agent_${version}_amd64.deb && sudo WAZUH_MANAGER='${manager}' WAZUH_REGISTRATION_PASSWORD='${escapeShell(password)}' WAZUH_AGENT_GROUP='REPLACE_GROUP' WAZUH_AGENT_NAME='REPLACE_NAME' dpkg -i ./wazuh-agent_${version}_amd64.deb`,\n  \n  \"Windows\": `Invoke-WebRequest -Uri https://packages.wazuh.com/4.x/windows/wazuh-agent-${version}.msi -OutFile $env:tmp\\\\wazuh-agent; msiexec.exe /i $env:tmp\\\\wazuh-agent /q WAZUH_MANAGER='${manager}' WAZUH_REGISTRATION_PASSWORD='${password}' WAZUH_AGENT_GROUP='REPLACE_GROUP' WAZUH_AGENT_NAME='REPLACE_NAME'`\n};\n\n// Return as array of objects (your original format)\nconst output = {\n  commands: Object.entries(commands).map(([key, value]) => ({[key]: value}))\n};\n\n// Validate it's proper JSON\nJSON.parse(JSON.stringify(output));\n\nreturn [{ json: output }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -303,8 +327,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        896,
-        -480
+        592,
+        -496
       ],
       "id": "60cbc50f-046d-40bf-bf16-cdb928406247",
       "name": "setSystemInfo"
@@ -317,8 +341,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1120,
-        -480
+        816,
+        -496
       ],
       "id": "614210ed-66e6-4262-9752-86da766cf782",
       "name": "Code in Python (Beta)"
@@ -427,6 +451,50 @@
       ],
       "id": "e4d28af0-bf9d-48d0-86af-70b45f008380",
       "name": "setWazuhAPI"
+    },
+    {
+      "parameters": {
+        "authentication": "privateKey",
+        "command": "={{ $json.command.replace(\"wazuh.diagon.ally\", \"10.0.0.234\") }}",
+        "cwd": "/home/caboose"
+      },
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -496
+      ],
+      "id": "d3dd5fd1-c252-4407-8603-c335dd67be38",
+      "name": "Execute a command",
+      "credentials": {
+        "sshPrivateKey": {
+          "id": "FqnNk3OcqFuYWU87",
+          "name": "sshWazuh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e9f66dc2-0796-4a7f-8529-3c8b734c1a9b",
+              "name": "command",
+              "value": "=sudo {{ $json.command.replace(\"REPLACE_GROUP\", \"kubernetes\").replace(\"REPLACE_NAME\", $('loopOverSystems').item.json.systems) }} && sudo systemctl daemon-reload && sudo systemctl enable wazuh-agent && sudo systemctl start wazuh-agent",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        960,
+        -640
+      ],
+      "id": "60211c52-e9d4-4332-85bb-97cb53db8636",
+      "name": "setSystemReq"
     }
   ],
   "pinData": {},
@@ -445,6 +513,6 @@
   "staticData": null,
   "tags": [],
   "triggerCount": 0,
-  "updatedAt": "2025-11-23T03:30:37.658Z",
-  "versionId": "bce782aa-893e-4810-8aa8-394af4948099"
+  "updatedAt": "2025-11-23T19:35:04.577Z",
+  "versionId": "2356f867-8ef2-4690-8f9b-b5060c0e205f"
 }
