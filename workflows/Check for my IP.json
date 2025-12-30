@@ -1,5 +1,5 @@
 {
-  "active": false,
+  "active": true,
   "connections": {
     "If": {
       "main": [
@@ -23,22 +23,22 @@
         ]
       ]
     },
-    "When clicking ‘Execute workflow’": {
+    "get many messages": {
       "main": [
         [
           {
-            "node": "get many messages",
+            "node": "If",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "get many messages": {
+    "Schedule Trigger": {
       "main": [
         [
           {
-            "node": "If",
+            "node": "get many messages",
             "type": "main",
             "index": 0
           }
@@ -150,17 +150,6 @@
       }
     },
     {
-      "parameters": {},
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        -208,
-        -16
-      ],
-      "id": "8451574e-7dfa-4736-b831-cae317e268bd",
-      "name": "When clicking ‘Execute workflow’"
-    },
-    {
       "parameters": {
         "resource": "message",
         "operation": "getAll",
@@ -195,11 +184,33 @@
           "name": "n8n_ip_token"
         }
       }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -208,
+        0
+      ],
+      "id": "e7931e1f-5b28-4de1-8b20-e4d2e9f4a781",
+      "name": "Schedule Trigger"
     }
   ],
   "pinData": {},
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timeSavedPerExecution": 5
   },
   "shared": [
     {
@@ -210,9 +221,13 @@
       "projectId": "9tVnjhoqECLAKTN1"
     }
   ],
-  "staticData": null,
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    }
+  },
   "tags": [],
-  "triggerCount": 0,
-  "updatedAt": "2025-12-29T05:30:00.146Z",
-  "versionId": "32c60ea4-59aa-4e5f-a52e-20db2024d1fa"
+  "triggerCount": 1,
+  "updatedAt": "2025-12-29T19:27:53.769Z",
+  "versionId": "89393b20-ffde-4b18-bc9b-fb3dd85a1a02"
 }
