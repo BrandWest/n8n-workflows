@@ -233,7 +233,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "{ \"feeds\" :  [\n  {\n    \"url\": \"https://krebsonsecurity.com/feed/\",\n    \"name\": \"Krebs on Security\"\n  },\n  {\n    \"url\": \"https://www.schneier.com/feed/atom/\",\n    \"name\": \"Schneier on Security\"\n  },\n  {\n    \"url\": \"https://securelist.com/feed/\",\n    \"name\": \"Securelist\"\n  },\n  {\n    \"url\": \"https://news.sophos.com/en-us/category/security-operations/feed/\",\n    \"name\": \"Security Operations – Sophos News\"\n  },\n  {\n    \"url\": \"https://feeds.feedburner.com/TheHackersNews?format=xml\",\n    \"name\": \"The Hacker News\"\n  },\n  {\n    \"url\": \"https://news.sophos.com/en-us/category/threat-research/feed/\",\n    \"name\": \"Threat Research – Sophos News\"\n  },\n  {\n    \"url\": \"https://www.troyhunt.com/rss/\",\n    \"name\": \"Troy Hunt\"\n  },\n  {\n    \"url\": \"https://feeds.feedburner.com/eset/blog\",\n    \"name\": \"WeLiveSecurity\"\n  },\n  {\n    \"url\": \"https://0dayfans.com/feed.rss\",\n    \"name\": \"0dayfans\"\n  }\n]\n}\n",
+        "jsonOutput": "{ \"feeds\" :  [\n  {\n    \"url\": \"https://krebsonsecurity.com/feed/\",\n    \"name\": \"Krebs on Security\"\n  },\n  {\n    \"url\": \"https://www.schneier.com/feed/atom/\",\n    \"name\": \"Schneier on Security\"\n  },\n  {\n    \"url\": \"https://securelist.com/feed/\",\n    \"name\": \"Securelist\"\n  },\n  {\n    \"url\": \"https://www.sophos.com/en-us/blog/feed?id=blt6f15f4f7deaf4242\",\n    \"name\": \"Security Operations – Sophos News\"\n  },\n  {\n    \"url\": \"https://feeds.feedburner.com/TheHackersNews?format=xml\",\n    \"name\": \"The Hacker News\"\n  },\n  {\n    \"url\": \"https://news.sophos.com/en-us/category/threat-research/feed/\",\n    \"name\": \"Threat Research – Sophos News\"\n  },\n  {\n    \"url\": \"https://www.troyhunt.com/rss/\",\n    \"name\": \"Troy Hunt\"\n  },\n  {\n    \"url\": \"https://feeds.feedburner.com/eset/blog\",\n    \"name\": \"WeLiveSecurity\"\n  },\n  {\n    \"url\": \"https://0dayfans.com/feed.rss\",\n    \"name\": \"0dayfans\"\n  }\n]\n}\n",
         "options": {}
       },
       "type": "n8n-nodes-base.set",
@@ -769,6 +769,6 @@
     }
   ],
   "triggerCount": 1,
-  "updatedAt": "2025-11-09T19:14:38.220Z",
-  "versionId": "f2db9d20-a827-468d-a2fc-e0f7c3110b37"
+  "updatedAt": "2025-12-29T19:25:15.607Z",
+  "versionId": "606e25f5-11b8-49b3-97f2-9d84707ff3aa"
 }
